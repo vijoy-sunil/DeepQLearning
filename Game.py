@@ -1,6 +1,6 @@
 import pygame
-from pygame.locals import *
 import random
+import sys
 
 pygame.init()
 # 2 for two dimensional
@@ -12,9 +12,14 @@ ACC = 0.5
 FRIC = -0.12
 FPS = 60
 
-pygame.display.set_caption("Game")
+displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("DQN Game")
 background = pygame.image.load("./Game_Files/sky.png")
 
+# sprites
+all_sprites = pygame.sprite.Group()
+platforms = pygame.sprite.Group()
+coins = pygame.sprite.Group()
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -34,9 +39,9 @@ class Player(pygame.sprite.Sprite):
         self.acc = vec(0, 0.5)
 
         # inject actions into game
-        if actions[2] == 1:
+        if actions[1] == 1 or actions[4] == 1 or actions[6] == 1:
             self.acc.x = -ACC
-        if actions[3] == 1:
+        if actions[2] == 1 or actions[5] == 1 or actions[7] == 1:
             self.acc.x = ACC
 
         self.acc.x += self.vel.x * FRIC
@@ -81,12 +86,11 @@ class Player(pygame.sprite.Sprite):
                     self.vel.y = 0
                     self.jumping = False
 
-
 class Coin(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
 
-        self.image = pygame.image.load("./Game_Files/Coin.png")
+        self.image = pygame.image.load("./Game_Files/coin.png")
         self.rect = self.image.get_rect()
 
         self.rect.center = pos
@@ -96,8 +100,7 @@ class Coin(pygame.sprite.Sprite):
             P1.score += 5
             self.kill()
 
-
-class platform(pygame.sprite.Sprite):
+class Platform(pygame.sprite.Sprite):
     def __init__(self, width=0, height=18):
         super().__init__()
 
@@ -140,7 +143,7 @@ class platform(pygame.sprite.Sprite):
             if self.speed < 0 and self.rect.right < 0:
                 self.rect.left = WIDTH
 
-    def generateCoin(self):
+    def generate_coin(self):
         if self.speed == 0:
             # when moving platform is disabled, we need to
             # randomly generate coins
@@ -167,30 +170,24 @@ def check(platform, groupies):
 def plat_gen():
     while len(platforms) < 7:
         width = random.randrange(50, 100)
-        p = None
+        P = None
         C = True
 
         while C:
-            p = platform()
+            P = Platform()
             # generate platforms off-screen so when the player moves
             # up it becomes visible
-            p.rect.center = (random.randrange(0, WIDTH - width),
+            P.rect.center = (random.randrange(0, WIDTH - width),
                              random.randrange(-50, 0))
-            C = check(p, platforms)
+            C = check(P, platforms)
 
-        p.generateCoin()
-        platforms.add(p)
-        all_sprites.add(p)
-
-
-all_sprites = pygame.sprite.Group()
-platforms = pygame.sprite.Group()
-coins = pygame.sprite.Group()
-
+        P.generate_coin()
+        platforms.add(P)
+        all_sprites.add(P)
 
 def init_game():
     # base platform
-    PT1 = platform(450, 40)
+    PT1 = Platform(450, 40)
     PT1.rect = PT1.surf.get_rect(center=(WIDTH / 2, HEIGHT - 10))
     PT1.moving = False
     PT1.point = False
@@ -205,12 +202,29 @@ def init_game():
     # once at the start
     for x in range(random.randint(5, 6)):
         C = True
-        pl = platform()
+        Pl = Platform()
         while C:
-            pl = platform()
-            C = check(pl, platforms)
-        pl.generateCoin()
-        platforms.add(pl)
-        all_sprites.add(pl)
+            Pl = Platform()
+            C = check(Pl, platforms)
+        Pl.generate_coin()
+        platforms.add(Pl)
+        all_sprites.add(Pl)
 
     return P1
+
+def reset_game():
+    # kill all sprites
+    for entity in all_sprites:
+        entity.kill()
+    for entity in platforms:
+        entity.kill()
+    for entity in coins:
+        entity.kill()
+    displaysurface.fill((255, 0, 0))
+    pygame.display.update()
+
+def safe_close():
+    # safe close the game
+    reset_game()
+    pygame.quit()
+    sys.exit()

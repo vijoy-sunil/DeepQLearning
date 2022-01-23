@@ -5,8 +5,15 @@ NEAREST COIN [X, Y]\
 *state vector contains 5 coordinates*
 
 **Actions**\
-[SHORT JUMP] - [LONG JUMP] - [LEFT] - [RIGHT]\
-
+sh jump + none\
+sh jump + left\
+sh jump + right\
+ln jump + none\
+ln jump + left\
+ln jump + right\
+left\
+right\
+none
 
 **Reference**\
 (1) Pygame used in this project [link](https://coderslegacy.com/python/pygame-platformer-game-development/)
