@@ -10,10 +10,17 @@ def main():
     for e in range(0, episodes):
         # clear saved vars before next episode
         epoch, done, reward = 0, False, 0
-
         Agent = Platformer_Final.init_game()
+
+        # get current state
+        state = Game_Utils.get_state(Agent)
+
+        # set actions to execute at current state
+        # [sh jump, ln jump, left, right]
+        actions = [0, 1, 0, 0]
+
         while not done:
-            next_state, reward, done = Game_Utils.play_step(Agent)
+            next_state, reward, done = Game_Utils.play_step(Agent, actions)
             epoch += 1
 
         # reset game

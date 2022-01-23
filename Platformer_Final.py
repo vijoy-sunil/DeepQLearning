@@ -23,20 +23,20 @@ class Player(pygame.sprite.Sprite):
         self.surf = pygame.transform.scale(self.image, (40, 40))
         self.rect = self.surf.get_rect()
 
-        self.pos = vec((10, 360))
+        # player spawn
+        self.pos = vec((10, 425))
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
         self.jumping = False
         self.score = 0
 
-    def move(self, P1):
+    def move(self, P1, actions):
         self.acc = vec(0, 0.5)
 
-        pressed_keys = pygame.key.get_pressed()
-
-        if pressed_keys[K_LEFT]:
+        # inject actions into game
+        if actions[2] == 1:
             self.acc.x = -ACC
-        if pressed_keys[K_RIGHT]:
+        if actions[3] == 1:
             self.acc.x = ACC
 
         self.acc.x += self.vel.x * FRIC
@@ -51,17 +51,19 @@ class Player(pygame.sprite.Sprite):
         # update rect with new position (after movement)
         self.rect.midbottom = self.pos
 
-    def jump(self):
+    def long_jump(self):
         # jump only if player is in contact with a platform
         hits = pygame.sprite.spritecollide(self, platforms, False)
         if hits and not self.jumping:
             self.jumping = True
             self.vel.y = -15
 
-    def cancel_jump(self):
-        if self.jumping:
-            if self.vel.y < -3:
-                self.vel.y = -3
+    def short_jump(self):
+        # jump only if player is in contact with a platform
+        hits = pygame.sprite.spritecollide(self, platforms, False)
+        if hits and not self.jumping:
+            self.jumping = True
+            self.vel.y = -10
 
     def update(self):
         hits = pygame.sprite.spritecollide(self, platforms, False)
@@ -123,7 +125,7 @@ class platform(pygame.sprite.Sprite):
         self.isCoin = False
 
     # moving platforms
-    def move(self, P1):
+    def move(self, P1, actions):
         hits = self.rect.colliderect(P1.rect)
         if self.moving == True:
             self.rect.move_ip(self.speed, 0)

@@ -70,7 +70,7 @@ def show_state(state):
 
 # step function takes in action, moves agent to next state
 # and returns [next_state, reward, done]
-def play_step(P1):
+def play_step(P1, actions):
     next_state = []
     done = False
 
@@ -79,12 +79,12 @@ def play_step(P1):
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                P1.jump()
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_SPACE:
-                P1.cancel_jump()
+
+    # inject actions into game
+    if actions[0] == 1:
+        P1.short_jump()
+    if actions[1] == 1:
+        P1.long_jump()
 
     # end of episode here
     if P1.rect.top > Platformer_Final.HEIGHT:
@@ -116,7 +116,8 @@ def play_step(P1):
 
         for entity in Platformer_Final.all_sprites:
             displaysurface.blit(entity.surf, entity.rect)
-            entity.move(P1)
+            # inject left/right actions
+            entity.move(P1, actions)
 
         for coin in Platformer_Final.coins:
             displaysurface.blit(coin.image, coin.rect)
