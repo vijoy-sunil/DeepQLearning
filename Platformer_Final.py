@@ -87,7 +87,7 @@ class Coin(pygame.sprite.Sprite):
         self.image = pygame.image.load("./Game_Files/Coin.png")
         self.rect = self.image.get_rect()
 
-        self.rect.topleft = pos
+        self.rect.center = pos
 
     def update(self, P1):
         if self.rect.colliderect(P1.rect):
@@ -119,6 +119,9 @@ class platform(pygame.sprite.Sprite):
         if self.speed == 0:
             self.moving = False
 
+        # presence of coin
+        self.isCoin = False
+
     # moving platforms
     def move(self, P1):
         hits = self.rect.colliderect(P1.rect)
@@ -140,8 +143,9 @@ class platform(pygame.sprite.Sprite):
             # when moving platform is disabled, we need to
             # randomly generate coins
             coins_prob = random.uniform(0.0, 1.0)
-            if coins_prob > 0.8:
-                coins.add(Coin((self.rect.centerx, self.rect.centery - 50)))
+            if coins_prob > 0.85:
+                self.isCoin = True
+                coins.add(Coin((self.rect.centerx, self.rect.centery - 30)))
 
 # check if platforms generated are too close
 def check(platform, groupies):
@@ -159,7 +163,7 @@ def check(platform, groupies):
 # random level generation, When the player moves up, the
 # screen shifts and these platforms become visible
 def plat_gen():
-    while len(platforms) < 5:
+    while len(platforms) < 7:
         width = random.randrange(50, 100)
         p = None
         C = True
@@ -197,7 +201,7 @@ def init_game():
 
     # generate platforms for initial screen, will only run
     # once at the start
-    for x in range(random.randint(3, 4)):
+    for x in range(random.randint(5, 6)):
         C = True
         pl = platform()
         while C:
