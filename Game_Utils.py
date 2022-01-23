@@ -41,6 +41,7 @@ def get_state(P1):
     farthest = state[0]
 
     # sort platforms with coins
+    # NOTE: if there aren't any, set it to the farthest platform
     if len(coin_platform) == 0:
         coin_platform = [farthest]
     # clear state and construct
@@ -70,6 +71,9 @@ def show_state(state):
 # step function takes in action, moves agent to next state
 # and returns [next_state, reward, done]
 def play_step(P1):
+    next_state = []
+    done = False
+
     P1.update()
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -84,47 +88,63 @@ def play_step(P1):
 
     # end of episode here
     if P1.rect.top > Platformer_Final.HEIGHT:
-        for entity in Platformer_Final.all_sprites:
-            entity.kill()
-            time.sleep(1)
-            displaysurface.fill((255, 0, 0))
-            pygame.display.update()
-            time.sleep(1)
-            pygame.quit()
-            sys.exit()
+        done = True
 
-    # scroll screen up if player goes above 1/2 of the screen height
-    if P1.rect.top <= Platformer_Final.HEIGHT / 2:
-        # move player with velocity
-        P1.pos.y += abs(P1.vel.y)
-        # move platforms and coins as well with velocity
-        for plat in Platformer_Final.platforms:
-            plat.rect.y += abs(P1.vel.y)
-            if plat.rect.top >= Platformer_Final.HEIGHT:
-                plat.kill()
+    # exit this if done is True
+    if done is not True:
+        # scroll screen up if player goes above 1/2 of the screen height
+        if P1.rect.top <= Platformer_Final.HEIGHT / 2:
+            # move player with velocity
+            P1.pos.y += abs(P1.vel.y)
+            # move platforms and coins as well with velocity
+            for plat in Platformer_Final.platforms:
+                plat.rect.y += abs(P1.vel.y)
+                if plat.rect.top >= Platformer_Final.HEIGHT:
+                    plat.kill()
+
+            for coin in Platformer_Final.coins:
+                coin.rect.y += abs(P1.vel.y)
+                if coin.rect.top >= Platformer_Final.HEIGHT:
+                    coin.kill()
+
+        Platformer_Final.plat_gen()
+        displaysurface.blit(Platformer_Final.background, (0, 0))
+
+        f = pygame.font.SysFont("Verdana", 20)
+        g = f.render(str(P1.score), True, (123, 255, 0))
+        displaysurface.blit(g, (Platformer_Final.WIDTH / 2, 10))
+
+        for entity in Platformer_Final.all_sprites:
+            displaysurface.blit(entity.surf, entity.rect)
+            entity.move(P1)
 
         for coin in Platformer_Final.coins:
-            coin.rect.y += abs(P1.vel.y)
-            if coin.rect.top >= Platformer_Final.HEIGHT:
-                coin.kill()
+            displaysurface.blit(coin.image, coin.rect)
+            coin.update(P1)
 
-    Platformer_Final.plat_gen()
-    displaysurface.blit(Platformer_Final.background, (0, 0))
+        # observed state after executing the action
+        next_state = get_state(P1)
+        # debug info
+        show_state(next_state)
 
-    f = pygame.font.SysFont("Verdana", 20)
-    g = f.render(str(P1.score), True, (123, 255, 0))
-    displaysurface.blit(g, (Platformer_Final.WIDTH / 2, 10))
+        pygame.display.update()
+        FramePerSec.tick(Platformer_Final.FPS)
 
+    return next_state, P1.score, done
+
+def reset_game():
+    # kill all sprites
     for entity in Platformer_Final.all_sprites:
-        displaysurface.blit(entity.surf, entity.rect)
-        entity.move(P1)
-
-    for coin in Platformer_Final.coins:
-        displaysurface.blit(coin.image, coin.rect)
-        coin.update(P1)
-
-    state = get_state(P1)
-    show_state(state)
-
+        entity.kill()
+    for entity in Platformer_Final.platforms:
+        entity.kill()
+    for entity in Platformer_Final.coins:
+        entity.kill()
+    displaysurface.fill((255, 0, 0))
     pygame.display.update()
-    FramePerSec.tick(Platformer_Final.FPS)
+
+def safe_close():
+    # safe close the game
+    reset_game()
+    pygame.quit()
+    sys.exit()

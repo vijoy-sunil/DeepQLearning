@@ -1,10 +1,12 @@
 **States**\
 AGENT POS [X, Y]\
-PLATFORM POS [X, Y]
-TBD
+PLATFORM POS [X, Y] (*nearest, middle, farthest*)\
+NEAREST COIN [X, Y]\
+*state vector contains 5 coordinates*
 
 **Actions**\
-[SHORT JUMP] - [LONG JUMP] - [LEFT] - [RIGHT]
+[SHORT JUMP] - [LONG JUMP] - [LEFT] - [RIGHT]\
+
 
 **Reference**\
 (1) Pygame used in this project [link](https://coderslegacy.com/python/pygame-platformer-game-development/)
