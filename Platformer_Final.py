@@ -13,13 +13,14 @@ FRIC = -0.12
 FPS = 60
 
 pygame.display.set_caption("Game")
-background = pygame.image.load("./Game_Files/background.png")
+background = pygame.image.load("./Game_Files/sky.png")
 
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.surf = pygame.image.load("./Game_Files/snowman.png")
+        self.image = pygame.image.load("./Game_Files/mario.png")
+        self.surf = pygame.transform.scale(self.image, (40, 40))
         self.rect = self.surf.get_rect()
 
         self.pos = vec((10, 360))
@@ -104,14 +105,16 @@ class platform(pygame.sprite.Sprite):
         self.image = pygame.image.load("./Game_Files/platform.png")
         self.surf = pygame.transform.scale(self.image, (width, height))
         self.rect = self.surf.get_rect(center=(random.randint(0, WIDTH - 10),
-                                               random.randint(0, HEIGHT - 30)))
+                                               random.randint(0, HEIGHT - 70)))
 
         # the “point” attribute for the Platform which determines
         # whether the platform will give the player a point if he
         # lands on it or not.
         self.point = True
         self.moving = True
-        self.speed = random.randint(-1, 1)
+        # Disable moving platforms
+        # self.speed = random.randint(-1, 1)
+        self.speed = 0
 
         if self.speed == 0:
             self.moving = False
@@ -134,7 +137,11 @@ class platform(pygame.sprite.Sprite):
 
     def generateCoin(self):
         if self.speed == 0:
-            coins.add(Coin((self.rect.centerx, self.rect.centery - 50)))
+            # when moving platform is disabled, we need to
+            # randomly generate coins
+            coins_prob = random.uniform(0.0, 1.0)
+            if coins_prob > 0.8:
+                coins.add(Coin((self.rect.centerx, self.rect.centery - 50)))
 
 # check if platforms generated are too close
 def check(platform, groupies):
@@ -147,12 +154,12 @@ def check(platform, groupies):
             if (abs(platform.rect.top - entity.rect.bottom) < 40) and (
                     abs(platform.rect.bottom - entity.rect.top) < 40):
                 return True
-        C = False
+        return False
 
 # random level generation, When the player moves up, the
 # screen shifts and these platforms become visible
 def plat_gen():
-    while len(platforms) < 7:
+    while len(platforms) < 5:
         width = random.randrange(50, 100)
         p = None
         C = True
@@ -177,7 +184,7 @@ coins = pygame.sprite.Group()
 
 def init_game():
     # base platform
-    PT1 = platform(450, 80)
+    PT1 = platform(450, 40)
     PT1.rect = PT1.surf.get_rect(center=(WIDTH / 2, HEIGHT - 10))
     PT1.moving = False
     PT1.point = False
@@ -190,7 +197,7 @@ def init_game():
 
     # generate platforms for initial screen, will only run
     # once at the start
-    for x in range(random.randint(5, 6)):
+    for x in range(random.randint(3, 4)):
         C = True
         pl = platform()
         while C:
