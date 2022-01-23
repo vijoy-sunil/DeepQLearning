@@ -37,8 +37,11 @@ def play_step(P1):
             pygame.quit()
             sys.exit()
 
+    # scroll screen up if player goes above 1/3rd of the screen height
     if P1.rect.top <= Platformer_Final.HEIGHT / 3:
+        # move player with velocity
         P1.pos.y += abs(P1.vel.y)
+        # move platforms and coins as well with velocity
         for plat in Platformer_Final.platforms:
             plat.rect.y += abs(P1.vel.y)
             if plat.rect.top >= Platformer_Final.HEIGHT:
@@ -51,9 +54,19 @@ def play_step(P1):
 
     Platformer_Final.plat_gen()
     displaysurface.blit(Platformer_Final.background, (0, 0))
+
     f = pygame.font.SysFont("Verdana", 20)
     g = f.render(str(P1.score), True, (123, 255, 0))
     displaysurface.blit(g, (Platformer_Final.WIDTH / 2, 10))
+
+    # display debug info
+    debugFont = pygame.font.SysFont("Verdana", 14)
+    # agent (x, y)
+    debugSurface = debugFont.render(str(P1.pos), True, (123, 255, 0))
+    displaysurface.blit(debugSurface, (10, 10))
+    # platform pos (x, y)
+    debugSurface = debugFont.render(str(P1.pos), True, (123, 255, 0))
+    displaysurface.blit(debugSurface, (10, 30))
 
     for entity in Platformer_Final.all_sprites:
         displaysurface.blit(entity.surf, entity.rect)

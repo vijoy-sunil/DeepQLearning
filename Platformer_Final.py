@@ -13,13 +13,13 @@ FRIC = -0.12
 FPS = 60
 
 pygame.display.set_caption("Game")
-background = pygame.image.load("./Game/background.png")
+background = pygame.image.load("./Game_Files/background.png")
 
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.surf = pygame.image.load("./Game/snowman.png")
+        self.surf = pygame.image.load("./Game_Files/snowman.png")
         self.rect = self.surf.get_rect()
 
         self.pos = vec((10, 360))
@@ -42,15 +42,16 @@ class Player(pygame.sprite.Sprite):
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
 
-        # screen wrapping OFF
+        # screen wrapping
         if self.pos.x > WIDTH:
-            self.pos.x = WIDTH
-        if self.pos.x < 0:
             self.pos.x = 0
-
+        if self.pos.x < 0:
+            self.pos.x = WIDTH
+        # update rect with new position (after movement)
         self.rect.midbottom = self.pos
 
     def jump(self):
+        # jump only if player is in contact with a platform
         hits = pygame.sprite.spritecollide(self, platforms, False)
         if hits and not self.jumping:
             self.jumping = True
@@ -64,9 +65,13 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         hits = pygame.sprite.spritecollide(self, platforms, False)
         if self.vel.y > 0:
+            # when player lands on a platform
             if hits:
                 if self.pos.y < hits[0].rect.bottom:
                     if hits[0].point == True:
+                        # This prevents the player from gaining points from
+                        # jumping onto the same platform over and over to
+                        # gain points
                         hits[0].point = False
                         self.score += 1
                     self.pos.y = hits[0].rect.top + 1
@@ -78,7 +83,7 @@ class Coin(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
 
-        self.image = pygame.image.load("./Game/Coin.png")
+        self.image = pygame.image.load("./Game_Files/Coin.png")
         self.rect = self.image.get_rect()
 
         self.rect.topleft = pos
@@ -96,11 +101,14 @@ class platform(pygame.sprite.Sprite):
         if width == 0:
             width = random.randint(50, 120)
 
-        self.image = pygame.image.load("./Game/platform.png")
+        self.image = pygame.image.load("./Game_Files/platform.png")
         self.surf = pygame.transform.scale(self.image, (width, height))
         self.rect = self.surf.get_rect(center=(random.randint(0, WIDTH - 10),
                                                random.randint(0, HEIGHT - 30)))
 
+        # the “point” attribute for the Platform which determines
+        # whether the platform will give the player a point if he
+        # lands on it or not.
         self.point = True
         self.moving = True
         self.speed = random.randint(-1, 1)
@@ -108,12 +116,17 @@ class platform(pygame.sprite.Sprite):
         if self.speed == 0:
             self.moving = False
 
+    # moving platforms
     def move(self, P1):
         hits = self.rect.colliderect(P1.rect)
         if self.moving == True:
             self.rect.move_ip(self.speed, 0)
+
+            # move player along with platform
             if hits:
                 P1.pos += (self.speed, 0)
+
+            # platform screen wrapping
             if self.speed > 0 and self.rect.left > WIDTH:
                 self.rect.right = 0
             if self.speed < 0 and self.rect.right < 0:
@@ -123,7 +136,7 @@ class platform(pygame.sprite.Sprite):
         if self.speed == 0:
             coins.add(Coin((self.rect.centerx, self.rect.centery - 50)))
 
-
+# check if platforms generated are too close
 def check(platform, groupies):
     if pygame.sprite.spritecollideany(platform, groupies):
         return True
@@ -136,15 +149,18 @@ def check(platform, groupies):
                 return True
         C = False
 
-
+# random level generation, When the player moves up, the
+# screen shifts and these platforms become visible
 def plat_gen():
-    while len(platforms) < 6:
+    while len(platforms) < 7:
         width = random.randrange(50, 100)
         p = None
         C = True
 
         while C:
             p = platform()
+            # generate platforms off-screen so when the player moves
+            # up it becomes visible
             p.rect.center = (random.randrange(0, WIDTH - width),
                              random.randrange(-50, 0))
             C = check(p, platforms)
@@ -160,6 +176,7 @@ coins = pygame.sprite.Group()
 
 
 def init_game():
+    # base platform
     PT1 = platform(450, 80)
     PT1.rect = PT1.surf.get_rect(center=(WIDTH / 2, HEIGHT - 10))
     PT1.moving = False
@@ -171,7 +188,9 @@ def init_game():
     all_sprites.add(P1)
     platforms.add(PT1)
 
-    for x in range(random.randint(4, 5)):
+    # generate platforms for initial screen, will only run
+    # once at the start
+    for x in range(random.randint(5, 6)):
         C = True
         pl = platform()
         while C:
