@@ -68,7 +68,7 @@ class Agent:
         # clear state and construct
         state = [P1.pos, nearest, middle, farthest, coin_platform[-1]]
         # flatten state list
-        return flatten(state)
+        return list(flatten(state))
 
     # get action using epsilon-greedy method to be taken from current
     # state
@@ -161,17 +161,17 @@ def show_state(state):
     # display state vector
     debugfont = pygame.font.SysFont("Verdana", 14)
     # player pos
-    debugsurface = debugfont.render(str(state[0], state[1]), True, (0, 0, 0))
+    debugsurface = debugfont.render(str([state[0], state[1]]), True, (0, 0, 0))
     Game.displaysurface.blit(debugsurface, (state[0], state[1]))
     # nearest platform
-    debugsurface = debugfont.render(str(state[2], state[3]), True, (0, 0, 255))
+    debugsurface = debugfont.render(str([state[2], state[3]]), True, (0, 0, 255))
     Game.displaysurface.blit(debugsurface, (state[2], state[3]))
     # middle platform
-    debugsurface = debugfont.render(str(state[4], state[5]), True, (0, 0, 255))
+    debugsurface = debugfont.render(str([state[4], state[5]]), True, (0, 0, 255))
     Game.displaysurface.blit(debugsurface, (state[4], state[5]))
     # farthest platform
-    debugsurface = debugfont.render(str(state[6], state[7]), True, (0, 0, 255))
+    debugsurface = debugfont.render(str([state[6], state[7]]), True, (0, 0, 255))
     Game.displaysurface.blit(debugsurface, (state[6], state[7]))
     # nearest coin platform
-    debugsurface = debugfont.render(str(state[8], state[9]), True, (255, 0, 0))
+    debugsurface = debugfont.render(str([state[8], state[9]]), True, (255, 0, 0))
     Game.displaysurface.blit(debugsurface, (state[8], state[9]))
