@@ -28,20 +28,20 @@ class Player(pygame.sprite.Sprite):
         self.surf = pygame.transform.scale(self.image, (40, 40))
         self.rect = self.surf.get_rect()
 
-        # player spawn
-        self.pos = vec((10, 425))
+        # player spawn at random location on base platform
+        self.pos = vec(random.randint(10, WIDTH - 30), 425)
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
         self.jumping = False
         self.score = 0
 
-    def move(self, P1, actions):
+    def move(self, P1, action):
         self.acc = vec(0, 0.5)
 
         # inject actions into game
-        if actions[1] == 1 or actions[4] == 1 or actions[6] == 1:
+        if action == 1 or action == 4 or action == 6:
             self.acc.x = -ACC
-        if actions[2] == 1 or actions[5] == 1 or actions[7] == 1:
+        if action == 2 or action == 5 or action == 7:
             self.acc.x = ACC
 
         self.acc.x += self.vel.x * FRIC
