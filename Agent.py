@@ -1,7 +1,11 @@
 import Game
 import pygame
 from pygame.locals import *
+from collections import Iterable
 import sys
+import random
+import numpy as np
+import Model
 
 FramePerSec = pygame.time.Clock()
 
@@ -11,19 +15,29 @@ def sort_rule(e):
 
 class Agent:
     def __init__(self):
-        # parameters
-        self.epsilon = 0.2
-        self.gamma = 0.8
-
+        # constants
+        self.epsilon = 0.8
+        self.gamma = 0.2
+        # [Player.x, Player.y,
+        #  Platform1.x, Platform1.y,
+        #  Platform2.x, Platform2.y,
+        #  Platform3.x, Platform3.y,
+        #  Coin1.x, Coin1.y]
+        self.state_size = 10
+        # [sh jump + none,      0
+        #  sh jump + left,      1
+        #  sh jump + right,     2
+        #  ln jump + none,      3
+        #  ln jump + left,      4
+        #  ln jump + right,     5
+        #  left,                6
+        #  right,               7
+        #  none]                8
+        self.action_size = 9
         # deep network
-        self.model = None
-        self.trainer = None
+        self.model = Model.DQNModel()
 
     # get current state
-    # [Player.x, Player.y, Platform1.x, Platform1.y,
-    #  Platform2.x, Platform2.y,
-    #  Platform3.x, Platform3.y,
-    #  Coin1.x, Coin1.y]
     def get_state(self, P1):
         state = []
         coin_platform = []
@@ -40,7 +54,6 @@ class Agent:
 
         # sort platforms
         state.sort(key=sort_rule)
-
         # limit number of platforms to 3, the NN will only see
         # 3 platforms in front - nearest and farthest and one in between
         nearest = state[-1]
@@ -54,30 +67,23 @@ class Agent:
             coin_platform = [farthest]
         # clear state and construct
         state = [P1.pos, nearest, middle, farthest, coin_platform[-1]]
-        return state
+        # flatten state list
+        return flatten(state)
 
-    def show_state(self, state):
-        # display state vector
-        debugfont = pygame.font.SysFont("Verdana", 14)
-        # player pos
-        debugsurface = debugfont.render(str(state[0]), True, (0, 0, 0))
-        Game.displaysurface.blit(debugsurface, state[0])
-        # nearest platform
-        debugsurface = debugfont.render(str(state[1]), True, (0, 0, 255))
-        Game.displaysurface.blit(debugsurface, state[1])
-        # middle platform
-        debugsurface = debugfont.render(str(state[2]), True, (0, 0, 255))
-        Game.displaysurface.blit(debugsurface, state[2])
-        # farthest platform
-        debugsurface = debugfont.render(str(state[3]), True, (0, 0, 255))
-        Game.displaysurface.blit(debugsurface, state[3])
-        # nearest coin platform
-        debugsurface = debugfont.render(str(state[4]), True, (255, 0, 0))
-        Game.displaysurface.blit(debugsurface, state[4])
+    # get action using epsilon-greedy method to be taken from current
+    # state
+    def get_action(self, state):
+        # exploration
+        if random.uniform(0, 1) > self.epsilon:
+            return random.randint(0, self.action_size)
+        # exploitation; get action from pred_model and take the biggest
+        # q value (best action)
+        else:
+            return np.argmax(self.model.pred_model.predict(state))
 
-    # step function takes in action, moves agent to next state
-    # and returns [next_state, reward, done]
-    def play_step(self, P1, actions):
+    # step function takes in action, moves agent to next state and returns
+    # [next_state, reward, done]
+    def play_step(self, P1, action):
         next_state = []
         done = False
 
@@ -88,9 +94,9 @@ class Agent:
                 sys.exit()
 
         # inject actions into game
-        if actions[0] == 1 or actions[1] == 1 or actions[2] == 1:
+        if action < 3:
             P1.short_jump()
-        if actions[3] == 1 or actions[4] == 1 or actions[5] == 1:
+        elif action < 6:
             P1.long_jump()
 
         # end of episode here
@@ -124,7 +130,7 @@ class Agent:
             for entity in Game.all_sprites:
                 Game.displaysurface.blit(entity.surf, entity.rect)
                 # inject left/right actions
-                entity.move(P1, actions)
+                entity.move(P1, action)
 
             for coin in Game.coins:
                 Game.displaysurface.blit(coin.image, coin.rect)
@@ -133,9 +139,39 @@ class Agent:
             # observed state after executing the action
             next_state = self.get_state(P1)
             # debug info
-            self.show_state(next_state)
+            show_state(next_state)
 
             pygame.display.update()
             FramePerSec.tick(Game.FPS)
 
         return next_state, P1.score, done
+
+# utils
+# flatten list
+def flatten(lis):
+    for item in lis:
+        if isinstance(item, Iterable) and not isinstance(item, str):
+            for x in flatten(item):
+                yield x
+        else:
+            yield item
+
+# display state
+def show_state(state):
+    # display state vector
+    debugfont = pygame.font.SysFont("Verdana", 14)
+    # player pos
+    debugsurface = debugfont.render(str(state[0], state[1]), True, (0, 0, 0))
+    Game.displaysurface.blit(debugsurface, (state[0], state[1]))
+    # nearest platform
+    debugsurface = debugfont.render(str(state[2], state[3]), True, (0, 0, 255))
+    Game.displaysurface.blit(debugsurface, (state[2], state[3]))
+    # middle platform
+    debugsurface = debugfont.render(str(state[4], state[5]), True, (0, 0, 255))
+    Game.displaysurface.blit(debugsurface, (state[4], state[5]))
+    # farthest platform
+    debugsurface = debugfont.render(str(state[6], state[7]), True, (0, 0, 255))
+    Game.displaysurface.blit(debugsurface, (state[6], state[7]))
+    # nearest coin platform
+    debugsurface = debugfont.render(str(state[8], state[9]), True, (255, 0, 0))
+    Game.displaysurface.blit(debugsurface, (state[8], state[9]))
