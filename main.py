@@ -4,30 +4,42 @@ import Agent
 # parameters
 episodes = 10
 
-def main():
+def train():
+    # keep track of number of iterations to trigger target model
+    # update
+    iteration = 0
     agent = Agent.Agent()
     for e in range(0, episodes):
         # clear saved vars before next episode
         epoch, done, reward = 0, False, 0
         env = Game.init_game()
-
         # get current state
         state = agent.get_state(env)
-
-        # get actions to execute at current state
-        # [sh jump + none,
-        #  sh jump + left,
-        #  sh jump + right,
-        #  ln jump + none,
-        #  ln jump + left,
-        #  ln jump + right,
-        #  left,
-        #  right,
-        #  none]
-        actions = [0, 1, 0, 0, 0, 0, 0, 0, 0]
-
+        # begin an episode
         while not done:
-            next_state, reward, done = agent.play_step(env, actions)
+            iteration += 1
+            # get actions to execute at current state
+            # action = agent.get_action(state)
+            action = 1
+            # execute action, accumulate reward
+            next_state, reward, done = agent.play_step(env, action)
+            # store in experience replay memory
+            experience = state, action, reward, next_state, done
+            agent.model.save_replay_memory(experience)
+            # update state to next_state
+            state = next_state
+
+            if done:
+                # save best model
+                pass
+
+            # update target model
+            if iteration == agent.model.target_model_update_step:
+                iteration = 0
+                agent.model.update_target_model()
+            # train prediction model, NOTE: training starts only after
+            # replay memory has minimum batch size
+            agent.model.train_model()
             epoch += 1
 
         # reset game
@@ -39,4 +51,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    train()
