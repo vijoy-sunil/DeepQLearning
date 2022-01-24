@@ -136,14 +136,15 @@ class Agent:
                 Game.displaysurface.blit(coin.image, coin.rect)
                 coin.update(P1)
 
-            # observed state after executing the action
-            next_state = self.get_state(P1)
-            # debug info
-            show_state(next_state)
-
             pygame.display.update()
             FramePerSec.tick(Game.FPS)
 
+        # observed state after executing the action
+        # NOTE: even if done is set, we still get next_state which would
+        # be the same as the last obtained state
+        next_state = self.get_state(P1)
+        # debug info
+        show_state(next_state)
         return next_state, P1.score, done
 
 # utils

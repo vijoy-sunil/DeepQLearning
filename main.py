@@ -20,7 +20,7 @@ def train():
             iteration += 1
             # get actions to execute at current state
             # action = agent.get_action(state)
-            action = 1
+            action = 3
             # execute action, accumulate reward
             next_state, reward, done = agent.play_step(env, action)
             # store in experience replay memory
@@ -34,7 +34,10 @@ def train():
                 pass
 
             # update target model
+            # NOTE: from iteration 1 to batch_size, the prediction model
+            # is not getting trained as we are collecting experience
             if iteration == agent.model.target_model_update_step:
+                print('updating target model weights . . .')
                 iteration = 0
                 agent.model.update_target_model()
             # train prediction model, NOTE: training starts only after
