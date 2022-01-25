@@ -15,9 +15,10 @@ def sort_rule(e):
 
 class Agent:
     def __init__(self):
+        # reward (not included in Game file)
+        self.game_over_reward = -25
         # constants
         self.epsilon = 0.8
-        self.gamma = 0.2
         # [Player.x, Player.y,
         #  Platform1.x, Platform1.y,
         #  Platform2.x, Platform2.y,
@@ -75,16 +76,18 @@ class Agent:
     def get_action(self, state):
         # exploration
         if random.uniform(0, 1) > self.epsilon:
-            return random.randint(0, self.action_size)
+            return random.randrange(0, self.action_size)
         # exploitation; get action from pred_model and take the biggest
         # q value (best action)
         else:
+            state = np.array(state)
+            # reshape state array to feed into NN
+            state = state.reshape(1, self.state_size)
             return np.argmax(self.model.pred_model.predict(state))
 
     # step function takes in action, moves agent to next state and returns
     # [next_state, reward, done]
     def play_step(self, P1, action):
-        next_state = []
         done = False
 
         P1.update()
@@ -136,8 +139,12 @@ class Agent:
                 Game.displaysurface.blit(coin.image, coin.rect)
                 coin.update(P1)
 
-            pygame.display.update()
-            FramePerSec.tick(Game.FPS)
+            # get cumulative reward from game
+            reward = P1.score
+
+        else:
+            # set negative reward if done is true [game over]
+            reward = P1.score + self.game_over_reward
 
         # observed state after executing the action
         # NOTE: even if done is set, we still get next_state which would
@@ -145,7 +152,10 @@ class Agent:
         next_state = self.get_state(P1)
         # debug info
         show_state(next_state)
-        return next_state, P1.score, done
+        # update display
+        pygame.display.update()
+        FramePerSec.tick(Game.FPS)
+        return next_state, reward, done
 
 # utils
 # flatten list
