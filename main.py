@@ -19,8 +19,7 @@ def train():
         while not done:
             iteration += 1
             # get actions to execute at current state
-            # action = agent.get_action(state)
-            action = 3
+            action = agent.get_action(state)
             # execute action, accumulate reward
             next_state, reward, done = agent.play_step(env, action)
             # store in experience replay memory
