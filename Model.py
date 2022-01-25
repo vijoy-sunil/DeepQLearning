@@ -34,11 +34,11 @@ class DQNModel:
         # file name and path to save model. Model weights are saved to HDF5
         # format. This is a grid format that is ideal for storing multidime-
         # -nsional arrays of numbers.
-        self.weights_file_name = 'Weights/QNetwork.h5'
+        self.weights_file_name = 'Weights/QNetwork_'
         # update target model after this many epochs
         self.target_model_update_step = 1000
         # get state size and action size from agent
-        self.state_size = 10
+        self.state_size = 12
         self.action_size = 9
         # discount factor for future rewards
         self.gamma = 0.2
@@ -77,12 +77,14 @@ class DQNModel:
 
     # load and save model weights, NOTE: we are not saving model
     # architecture here
-    def load_model_weights(self):
-        weights = load_model(self.weights_file_name)
+    def load_model_weights(self, t_id):
+        weights_file = self.weights_file_name + str(t_id) + '.h5'
+        weights = load_model(weights_file)
         return weights
 
-    def save_model_weights(self):
-        self.pred_model.save(self.weights_file_name)
+    def save_model_weights(self, t_id):
+        weights_file = self.weights_file_name + str(t_id) + '.h5'
+        self.pred_model.save(weights_file)
 
     # save to experience replay memory
     def save_replay_memory(self, experience):
