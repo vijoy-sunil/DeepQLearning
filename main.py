@@ -5,7 +5,7 @@ import Agent
 
 def train():
     # parameters
-    episodes = 100
+    episodes = 50
     # id for this training; used in plot figure
     t_id = 0
     # keep track of number of iterations to trigger target model update
@@ -44,6 +44,13 @@ def train():
             agent.model.train_model()
             epoch += 1
 
+            # Special case: in case we are stuck in a loop in the game,
+            # happens at the start, when generated platforms are high up
+            # we need to exit the episode; here we exit when target network
+            # has been updated X times without any reward
+            if epoch == 3 * agent.model.target_model_update_step and reward == 0:
+                done = True
+
         # reset game
         Game.reset_game()
         print('episode', e, 'complete, epochs', epoch, 'reward', reward)
@@ -53,7 +60,7 @@ def train():
     # plot episode vs reward
     plot_result(score, t_id)
     # save model
-    agent.model.save_model_weights()
+    agent.model.save_model_weights(t_id)
     # close game
     Game.safe_close()
 
