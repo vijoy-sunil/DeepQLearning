@@ -133,7 +133,7 @@ class Platform(pygame.sprite.Sprite):
         self.isCoin = False
 
     # moving platforms
-    def move(self, P1, actions):
+    def move(self, P1, action):
         hits = self.rect.colliderect(P1.rect)
         if self.moving == True:
             self.rect.move_ip(self.speed, 0)

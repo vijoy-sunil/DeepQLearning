@@ -126,5 +126,3 @@ class DQNModel:
         # with states as input, tune the weights such that they
         # are close to predicted_q
         self.pred_model.fit(states, predicted_q, batch_size=self.batch_size, verbose=0)
-
-

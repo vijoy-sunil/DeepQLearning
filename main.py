@@ -1,13 +1,17 @@
+import matplotlib.pyplot as plt
+import numpy as np
 import Game
 import Agent
 
-# parameters
-episodes = 10
-
 def train():
-    # keep track of number of iterations to trigger target model
-    # update
+    # parameters
+    episodes = 100
+    # id for this training; used in plot figure
+    t_id = 0
+    # keep track of number of iterations to trigger target model update
     iteration = 0
+    # save rewards per episode to plot
+    score = []
     agent = Agent.Agent()
     for e in range(0, episodes):
         # clear saved vars before next episode
@@ -28,10 +32,6 @@ def train():
             # update state to next_state
             state = next_state
 
-            if done:
-                # save best model
-                pass
-
             # update target model
             # NOTE: from iteration 1 to batch_size, the prediction model
             # is not getting trained as we are collecting experience
@@ -47,9 +47,30 @@ def train():
         # reset game
         Game.reset_game()
         print('episode', e, 'complete, epochs', epoch, 'reward', reward)
+        # save reward to plot
+        score.append(reward)
 
+    # plot episode vs reward
+    plot_result(score, t_id)
+    # save model
+    agent.model.save_model_weights()
     # close game
     Game.safe_close()
+
+def plot_result(score, t_id):
+    n = len(score)
+    plt.plot(score, color='r')
+    plt.xticks(np.arange(0, n, n-1))
+    plt.xlabel('episodes')
+    plt.ylabel('reward')
+    # save fig to disk
+    fig_name = str(t_id) + '.png'
+    fig_path = 'Log/' + fig_name
+    plt.savefig(fig_path)
+    plt.show()
+
+def test():
+    pass
 
 
 if __name__ == '__main__':
