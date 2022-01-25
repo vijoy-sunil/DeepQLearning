@@ -56,8 +56,8 @@ class Agent:
             # save platforms below the player
             elif P1.pos[1] < p_y < Game.HEIGHT:
                 pl_below.append(p_entity.rect.center)
-            # save platforms with coin
-            if p_entity.isCoin:
+            # save platforms with coin; above player
+            if p_y < P1.pos[1] and p_entity.isCoin:
                 pl_coin.append(p_entity.rect.center)
 
         # sort platforms lowest to highest y
@@ -214,5 +214,3 @@ def show_state(state):
     # nearest coin platform
     debugsurface = debugfont.render(str([state[10], state[11]]), True, (0, 255, 0))
     Game.displaysurface.blit(debugsurface, (state[10], state[11]))
-
-
