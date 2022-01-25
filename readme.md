@@ -1,19 +1,20 @@
-**States**\
-AGENT POS [X, Y]\
-PLATFORM POS [X, Y] (*nearest, middle, farthest*)\
-NEAREST COIN [X, Y]\
-*state vector contains 5 coordinates*
+**States**
+1. agent position [X, Y]
+2. platform position [X, Y]\
+(*nearest below, nearest top, middle top, farthest top*)
+3. nearest coin platform [X, Y]\
+(*state vector contains 6 coordinates*)
 
-**Actions**\
-sh jump + none\
-sh jump + left\
-sh jump + right\
-ln jump + none\
-ln jump + left\
-ln jump + right\
-left\
-right\
-none
+**Actions**
+1. sh jump + none
+2. sh jump + left
+3. sh jump + right
+4. ln jump + none
+5. ln jump + left
+6. ln jump + right
+7. left
+8. right
+9. none
 
 **Reference**\
 (1) Pygame used in this project [link](https://coderslegacy.com/python/pygame-platformer-game-development/)

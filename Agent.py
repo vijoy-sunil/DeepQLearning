@@ -23,8 +23,9 @@ class Agent:
         #  Platform1.x, Platform1.y,
         #  Platform2.x, Platform2.y,
         #  Platform3.x, Platform3.y,
+        #  Platform4.x, Platform4,y,
         #  Coin1.x, Coin1.y]
-        self.state_size = 10
+        self.state_size = 12
         # [sh jump + none,      0
         #  sh jump + left,      1
         #  sh jump + right,     2
@@ -40,34 +41,55 @@ class Agent:
 
     # get current state
     def get_state(self, P1):
-        state = []
-        coin_platform = []
+        pl_above = []
+        pl_below = []
+        pl_coin = []
         # filter platforms
         for p_entity in Game.platforms:
             p_y = p_entity.rect.centery
-            # Check if platform is visible and is above the player
-            if p_y < 0 or p_y > P1.pos[1]:
+            # Check if platform is visible
+            if p_y < 0:
                 continue
+            # save platforms above the player
+            if p_y < P1.pos[1]:
+                pl_above.append(p_entity.rect.center)
+            # save platforms below the player
+            elif P1.pos[1] < p_y < Game.HEIGHT:
+                pl_below.append(p_entity.rect.center)
             # save platforms with coin
             if p_entity.isCoin:
-                coin_platform.append(p_entity.rect.center)
-            state.append(p_entity.rect.center)
+                pl_coin.append(p_entity.rect.center)
 
-        # sort platforms
-        state.sort(key=sort_rule)
-        # limit number of platforms to 3, the NN will only see
-        # 3 platforms in front - nearest and farthest and one in between
-        nearest = state[-1]
-        middle_idx = int(len(state) / 2)
-        middle = state[middle_idx]
-        farthest = state[0]
+        # sort platforms lowest to highest y
+        pl_above.sort(key=sort_rule)
+        pl_below.sort(key=sort_rule)
+        pl_coin.sort(key=sort_rule)
+
+        # if no platforms above set to (0, 0)
+        if len(pl_above) == 0:
+            pl_above = [[0, 0]]
+        # if no platforms below set to (width, height)
+        if len(pl_below) == 0:
+            pl_below = [[Game.WIDTH, Game.HEIGHT]]
+
+        # pick and choose what features/observations to use
+        nearest_below = pl_below[0]
+        nearest_above = pl_above[-1]
+        middle_above_idx = int(len(pl_above) / 2)
+        middle_above = pl_above[middle_above_idx]
+        farthest_above = pl_above[0]
 
         # sort platforms with coins
         # NOTE: if there aren't any, set it to the farthest platform
-        if len(coin_platform) == 0:
-            coin_platform = [farthest]
+        if len(pl_coin) == 0:
+            pl_coin = [farthest_above]
         # clear state and construct
-        state = [P1.pos, nearest, middle, farthest, coin_platform[-1]]
+        state = [P1.pos,            # 0, 1
+                 nearest_below,     # 2, 3
+                 nearest_above,     # 4, 5
+                 middle_above,      # 6, 7
+                 farthest_above,    # 8, 9
+                 pl_coin[-1]]       # 10, 11
         # flatten state list
         return list(flatten(state))
 
@@ -108,8 +130,8 @@ class Agent:
 
         # exit this if done is True
         if done is not True:
-            # scroll screen up if player goes above 1/2 of the screen height
-            if P1.rect.top <= Game.HEIGHT / 2:
+            # scroll screen up if player goes above set height
+            if P1.rect.top <= Game.HEIGHT / 3:
                 # move player with velocity
                 P1.pos.y += abs(P1.vel.y)
                 # move platforms and coins as well with velocity
@@ -172,17 +194,25 @@ def show_state(state):
     # display state vector
     debugfont = pygame.font.SysFont("Verdana", 14)
     # player pos
-    debugsurface = debugfont.render(str([state[0], state[1]]), True, (0, 0, 0))
-    Game.displaysurface.blit(debugsurface, (state[0], state[1]))
-    # nearest platform
-    debugsurface = debugfont.render(str([state[2], state[3]]), True, (0, 0, 255))
-    Game.displaysurface.blit(debugsurface, (state[2], state[3]))
-    # middle platform
-    debugsurface = debugfont.render(str([state[4], state[5]]), True, (0, 0, 255))
-    Game.displaysurface.blit(debugsurface, (state[4], state[5]))
-    # farthest platform
-    debugsurface = debugfont.render(str([state[6], state[7]]), True, (0, 0, 255))
-    Game.displaysurface.blit(debugsurface, (state[6], state[7]))
+    player_pos = [state[0], state[1]]
+    debugsurface = debugfont.render(str(player_pos), True, (0, 0, 0))
+    Game.displaysurface.blit(debugsurface, player_pos)
+
+    # nearest platforms - below - near | above - near, middle, far
+    for i in range(2, 9, 2):
+        if i == 2:
+            # color for platform below
+            cl = (255, 0, 0)
+        else:
+            # color for platforms above
+            cl = (0, 0, 255)
+        debugsurface = debugfont.render(str([state[i], state[i+1]]), True, cl)
+        Game.displaysurface.blit(debugsurface, (state[i], state[i+1]))
+        # draw connecting lines
+        pygame.draw.line(Game.displaysurface, cl, player_pos, (state[i], state[i+1]))
+
     # nearest coin platform
-    debugsurface = debugfont.render(str([state[8], state[9]]), True, (255, 0, 0))
-    Game.displaysurface.blit(debugsurface, (state[8], state[9]))
+    debugsurface = debugfont.render(str([state[10], state[11]]), True, (0, 255, 0))
+    Game.displaysurface.blit(debugsurface, (state[10], state[11]))
+
+
