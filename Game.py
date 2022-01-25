@@ -35,6 +35,9 @@ class Player(pygame.sprite.Sprite):
         self.jumping = False
         self.score = 0
 
+        # rewards
+        self.platform_land_reward = 1
+
     def move(self, P1, action):
         self.acc = vec(0, 0.5)
 
@@ -81,7 +84,7 @@ class Player(pygame.sprite.Sprite):
                         # jumping onto the same platform over and over to
                         # gain points
                         hits[0].point = False
-                        self.score += 1
+                        self.score += self.platform_land_reward
                     self.pos.y = hits[0].rect.top + 1
                     self.vel.y = 0
                     self.jumping = False
@@ -92,12 +95,14 @@ class Coin(pygame.sprite.Sprite):
 
         self.image = pygame.image.load("./Game_Files/coin.png")
         self.rect = self.image.get_rect()
-
         self.rect.center = pos
+
+        # rewards
+        self.coin_reward = 5
 
     def update(self, P1):
         if self.rect.colliderect(P1.rect):
-            P1.score += 5
+            P1.score += self.coin_reward
             self.kill()
 
 class Platform(pygame.sprite.Sprite):
