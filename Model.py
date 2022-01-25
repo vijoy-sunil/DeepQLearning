@@ -7,6 +7,7 @@ import numpy as np
 from keras.models import Sequential
 from keras.models import load_model
 from keras.optimizers import adam_v2
+from keras.layers import Dense
 from collections import deque
 
 class DQNModel:
@@ -34,26 +35,30 @@ class DQNModel:
         # format. This is a grid format that is ideal for storing multidime-
         # -nsional arrays of numbers.
         self.weights_file_name = 'Weights/QNetwork.h5'
-        # prediction and target model
-        self.pred_model = self.create_model()
-        self.target_model = self.create_model()
         # update target model after this many epochs
         self.target_model_update_step = 1000
         # get state size and action size from agent
         self.state_size = 10
         self.action_size = 9
+        # discount factor for future rewards
+        self.gamma = 0.2
+        # prediction and target model
+        self.pred_model = self.create_model()
+        self.target_model = self.create_model()
 
     # construct the deep model; same model for pred and target
     def create_model(self):
         model = Sequential()
         # define model layers
-
+        model.add(Dense(16, activation='relu', input_shape=(self.state_size,)))
+        model.add(Dense(32, activation='relu'))
+        model.add(Dense(self.action_size, activation='linear'))
         # Compile defines the loss function, the optimizer and the metrics.
         # It has nothing to do with the weights, and you can compile a model
         # as many times as you want without causing any problem to pretrained
         # weights. You need a compiled model to train (because training uses
         # the loss function and the optimizer).
-        # model.compile(loss=self.loss, optimizer=self.optimizer)
+        model.compile(loss=self.loss, optimizer=self.optimizer)
 
         # Keras provides a way to summarize a model.
         # The summary is textual and includes information about:
@@ -91,13 +96,35 @@ class DQNModel:
             mini_batch = random.sample(self.replay_memory, self.batch_size)
         else:
             return
-        # unravel mini batch
-        state = np.zeros((self.batch_size, self.state_size), dtype=np.float32)
-        action = np.zeros(self.batch_size, dtype=np.float32)
-        reward = np.zeros(self.batch_size, dtype=np.float32)
-        next_state = np.zeros((self.batch_size, self.state_size), dtype=np.float32)
-        done = np.zeros(self.batch_size, dtype=np.float32)
 
-        #for i in range(len(mini_batch)):
-        #    state[i], action[i], reward[i], next_state[i], done[i] = mini_batch[i]
+        # unravel mini batch
+        states = []
+        next_states = []
+        for index, sample in enumerate(mini_batch):
+            state, action, reward, next_state, done = sample
+            states.append(state)
+            next_states.append(next_state)
+
+        states = np.array(states)
+        next_states = np.array(next_states)
+
+        # batch prediction
+        # predict q value for state using pred_model
+        predicted_q = self.pred_model.predict(states)
+        # predict q value for next state using target_model
+        target_q = self.target_model.predict(next_states)
+
+        for index, sample in enumerate(mini_batch):
+            state, action, reward, next_state, done = sample
+            if not done:
+                # close the gap between target_q and predicted_q
+                predicted_q[index][action] = reward + self.gamma * np.argmax(target_q[index])
+            else:
+                predicted_q[index][action] = reward
+
+        # train with this batch
+        # with states as input, tune the weights such that they
+        # are close to predicted_q
+        self.pred_model.fit(states, predicted_q, batch_size=self.batch_size, verbose=0)
+
 
