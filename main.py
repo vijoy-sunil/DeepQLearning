@@ -1,11 +1,14 @@
+from time import process_time
 import matplotlib.pyplot as plt
 import numpy as np
 import Game
 import Agent
 
 def train():
+    # used to compute time to train
+    t1_start = process_time()
     # parameters
-    episodes = 50
+    episodes = 5
     # id for this training; used in plot figure
     t_id = 0
     # keep track of number of iterations to trigger target model update
@@ -57,6 +60,9 @@ def train():
         # save reward to plot
         score.append(reward)
 
+    # compute time to train
+    t1_stop = process_time()
+    print('training complete, elapsed time', t1_stop - t1_start, 'secs')
     # plot episode vs reward
     plot_result(score, t_id)
     # save model

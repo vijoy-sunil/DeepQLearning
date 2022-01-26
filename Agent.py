@@ -197,7 +197,8 @@ def show_state(state):
     debugfont = pygame.font.SysFont("Verdana", 14)
     # player pos
     player_pos = [state[0], state[1]]
-    debugsurface = debugfont.render(str(player_pos), True, (0, 0, 0))
+    player_attr_tuple = [state[0], state[1], state[12]]
+    debugsurface = debugfont.render(str(player_attr_tuple), True, (0, 0, 0))
     Game.displaysurface.blit(debugsurface, player_pos)
 
     # nearest platforms - below - near | above - near, middle, far
