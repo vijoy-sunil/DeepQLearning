@@ -38,7 +38,7 @@ class DQNModel:
         # update target model after this many epochs
         self.target_model_update_step = 1000
         # get state size and action size from agent
-        self.state_size = 12
+        self.state_size = 13
         self.action_size = 9
         # discount factor for future rewards
         self.gamma = 0.2

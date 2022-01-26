@@ -24,8 +24,9 @@ class Agent:
         #  Platform2.x, Platform2.y,
         #  Platform3.x, Platform3.y,
         #  Platform4.x, Platform4,y,
-        #  Coin1.x, Coin1.y]
-        self.state_size = 12
+        #  Coin1.x, Coin1.y,
+        #  Velocity.y]
+        self.state_size = 13
         # [sh jump + none,      0
         #  sh jump + left,      1
         #  sh jump + right,     2
@@ -89,7 +90,8 @@ class Agent:
                  nearest_above,     # 4, 5
                  middle_above,      # 6, 7
                  farthest_above,    # 8, 9
-                 pl_coin[-1]]       # 10, 11
+                 pl_coin[-1],       # 10, 11
+                 P1.vel.y]          # 12
         # flatten state list
         return list(flatten(state))
 
