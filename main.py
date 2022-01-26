@@ -4,7 +4,7 @@ import Agent
 
 def train():
     # parameters
-    episodes = 10
+    episodes = 100
     # id for this training; used in plot figure
     t_id = 0
     # keep track of number of iterations to trigger target model update
@@ -44,13 +44,6 @@ def train():
             # replay memory has minimum batch size
             agent.model.train_model()
             epoch += 1
-
-            # Special case: in case we are stuck in a loop in the game,
-            # happens at the start, when generated platforms are high up
-            # we need to exit the episode; here we exit when target network
-            # has been updated X times without any reward
-            if epoch == 3 * agent.model.target_model_update_step and reward == 0:
-                done = True
 
         # reset game
         agent.safe_reset()

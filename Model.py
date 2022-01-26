@@ -36,9 +36,9 @@ class DQNModel:
         # -nsional arrays of numbers.
         self.weights_file_name = 'Weights/QNetwork_'
         # update target model after this many epochs
-        self.target_model_update_step = 1000
+        self.target_model_update_step = 100
         # get state size and action size from agent
-        self.state_size = 11
+        self.state_size = 12
         self.action_size = 4
         # discount factor for future rewards
         self.gamma = 0.7

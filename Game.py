@@ -9,7 +9,7 @@ pygame.init()
 WIDTH = 640
 HEIGHT = 480
 BLOCK_SIZE = 20
-SPEED = 2
+SPEED = 12
 
 # Colors
 WHITE = (255, 255, 255)
@@ -49,7 +49,7 @@ class Environment:
 
     def update_ui(self, score):
         displaysurface.fill(BLACK)
-        # different color for the fead
+        # different color for the head
         head = self.snake[0]
         for pt in self.snake:
             pygame.draw.rect(displaysurface, BLUE1,

@@ -4,6 +4,7 @@ import random
 import numpy as np
 import Model
 import sys
+import math
 
 FramePerSec = pygame.time.Clock()
 
@@ -15,8 +16,8 @@ class Agent:
         self.head = None
         self.direction = None
         # reward collected by agent
-        self.game_over_reward = -25
-        self.food_reward = 5
+        self.game_over_reward = -5
+        self.food_reward = 10
         # constants
         self.epsilon = 0.8
         # [ next block [right] danger,
@@ -29,8 +30,9 @@ class Agent:
         #   food location [east],
         #   food location [west],
         #   food location [north],
-        #   food location [south] ]
-        self.state_size = 11
+        #   food location [south],
+        #   distance to food ]
+        self.state_size = 12
         # [east,       0
         #  west,       1
         #  north,      2
@@ -77,6 +79,8 @@ class Agent:
         dir_n = self.direction == self.actions.index('NORTH')
         dir_s = self.direction == self.actions.index('SOUTH')
 
+        # metric
+        distance_to_food = math.dist(head, self.env.food)
         # construct state vector
         state = [
             # next block [right]  danger
@@ -107,7 +111,9 @@ class Agent:
             self.env.food.x > head.x,  # food is eastbound
             self.env.food.x < head.x,  # food is westbound
             self.env.food.y < head.y,  # food is northbound
-            self.env.food.y > head.y   # food is southbound
+            self.env.food.y > head.y,  # food is southbound
+
+            distance_to_food            # distance to food
         ]
         return np.array(state, dtype=int)
 
@@ -152,14 +158,16 @@ class Agent:
         self.head = Game.Point(x, y)
         self.snake.insert(0, self.head)
 
-        # Check if game Over or exceeded set max iteration
+        # Check if game over or exceeded set max iteration
         if self.env.is_collision():
             done = True
             self.score += self.game_over_reward
+
         elif self.frame_iteration > self.max_iteration:
+            self.frame_iteration = 0
             print('frame iteration exceeded !')
             done = True
-            self.frame_iteration = 0
+            self.score += self.game_over_reward
 
         if not done:
             # Place new Food or just move
