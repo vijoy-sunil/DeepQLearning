@@ -1,99 +1,115 @@
 import Game
 import pygame
-from pygame.locals import *
-from collections import Iterable
-import sys
 import random
 import numpy as np
 import Model
+import sys
 
 FramePerSec = pygame.time.Clock()
 
-# sort platform list based on y coordinate
-def sort_rule(e):
-    return e[1]
-
 class Agent:
     def __init__(self):
-        # reward (not included in Game file)
+        # agent variables
+        self.score = 0
+        self.snake = None
+        self.head = None
+        self.direction = None
+        # reward collected by agent
         self.game_over_reward = -25
+        self.food_reward = 5
         # constants
         self.epsilon = 0.8
-        # [Player.x, Player.y,
-        #  Platform1.x, Platform1.y,
-        #  Platform2.x, Platform2.y,
-        #  Platform3.x, Platform3.y,
-        #  Platform4.x, Platform4,y,
-        #  Coin1.x, Coin1.y,
-        #  Velocity.y]
-        self.state_size = 13
-        # [sh jump + none,      0
-        #  sh jump + left,      1
-        #  sh jump + right,     2
-        #  ln jump + none,      3
-        #  ln jump + left,      4
-        #  ln jump + right,     5
-        #  left,                6
-        #  right,               7
-        #  none]                8
-        self.action_size = 9
+        # [ next block [right] danger,
+        #   next block [left]  danger,
+        #   next block [fwd]   danger,
+        #   face direction [east],
+        #   face direction [west],
+        #   face direction [north],
+        #   face direction [south],
+        #   food location [east],
+        #   food location [west],
+        #   food location [north],
+        #   food location [south] ]
+        self.state_size = 11
+        # [east,       0
+        #  west,       1
+        #  north,      2
+        #  south]      3
+        self.actions = ['EAST', 'WEST', 'NORTH', 'SOUTH']
+        self.action_size = len(self.actions)
+        # exit condition for an episode other than dying
+        self.frame_iteration = 0
+        self.max_iteration = 500
         # deep network
         self.model = Model.DQNModel()
 
+        # init agent, then environment
+        self.init_agent()
+        self.env = Game.Environment(self.snake)
+
+    # init agent
+    def init_agent(self):
+        self.direction = self.actions.index('EAST')
+        self.head = Game.Point(Game.WIDTH / 2, Game.HEIGHT / 2)
+        self.snake = [self.head,
+                      Game.Point(self.head.x - Game.BLOCK_SIZE, self.head.y),
+                      Game.Point(self.head.x - (2 * Game.BLOCK_SIZE), self.head.y)]
+        self.score = 0
+
+    # reset
+    def safe_reset(self):
+        self.init_agent()
+        self.env.init_env(self.snake)
+        self.env.update_ui(self.score)
+        pygame.display.update()
+
     # get current state
-    def get_state(self, P1):
-        pl_above = []
-        pl_below = []
-        pl_coin = []
-        # filter platforms
-        for p_entity in Game.platforms:
-            p_y = p_entity.rect.centery
-            # Check if platform is visible
-            if p_y < 0:
-                continue
-            # save platforms above the player
-            if p_y < P1.pos[1]:
-                pl_above.append(p_entity.rect.center)
-            # save platforms below the player
-            elif p_y > P1.pos[1]:
-                pl_below.append(p_entity.rect.center)
-            # save platforms with coin; above player
-            if p_y < P1.pos[1] and p_entity.isCoin:
-                pl_coin.append(p_entity.rect.center)
+    def get_state(self):
+        head = self.snake[0]
+        # neighboring cells
+        point_r = Game.Point(head.x + Game.BLOCK_SIZE, head.y)
+        point_l = Game.Point(head.x - Game.BLOCK_SIZE, head.y)
+        point_u = Game.Point(head.x, head.y - Game.BLOCK_SIZE)
+        point_d = Game.Point(head.x, head.y + Game.BLOCK_SIZE)
 
-        # sort platforms lowest to highest y
-        pl_above.sort(key=sort_rule)
-        pl_below.sort(key=sort_rule)
-        pl_coin.sort(key=sort_rule)
+        dir_e = self.direction == self.actions.index('EAST')
+        dir_w = self.direction == self.actions.index('WEST')
+        dir_n = self.direction == self.actions.index('NORTH')
+        dir_s = self.direction == self.actions.index('SOUTH')
 
-        # if no platforms above
-        if len(pl_above) == 0:
-            pl_above = [[Game.WIDTH/2, 0]]
-        # if no platforms below, give it an out-of-bounds value
-        if len(pl_below) == 0:
-            pl_below = [[Game.WIDTH/2, Game.HEIGHT + 1000]]
+        # construct state vector
+        state = [
+            # next block [right]  danger
+            (dir_e and self.env.is_collision(point_d)) or
+            (dir_w and self.env.is_collision(point_u)) or
+            (dir_n and self.env.is_collision(point_r)) or
+            (dir_s and self.env.is_collision(point_l)),
 
-        # pick and choose what features/observations to use
-        nearest_below = pl_below[0]
-        nearest_above = pl_above[-1]
-        middle_above_idx = int(len(pl_above) / 2)
-        middle_above = pl_above[middle_above_idx]
-        farthest_above = pl_above[0]
+            # next block [left]  danger
+            (dir_e and self.env.is_collision(point_u)) or
+            (dir_w and self.env.is_collision(point_d)) or
+            (dir_n and self.env.is_collision(point_l)) or
+            (dir_s and self.env.is_collision(point_r)),
 
-        # sort platforms with coins
-        # NOTE: if there aren't any, set it to the farthest platform
-        if len(pl_coin) == 0:
-            pl_coin = [farthest_above]
-        # clear state and construct
-        state = [P1.pos,            # 0, 1
-                 nearest_below,     # 2, 3
-                 nearest_above,     # 4, 5
-                 middle_above,      # 6, 7
-                 farthest_above,    # 8, 9
-                 pl_coin[-1],       # 10, 11
-                 P1.vel.y]          # 12
-        # flatten state list
-        return list(flatten(state))
+            # next block [fwd] danger
+            (dir_e and self.env.is_collision(point_r)) or
+            (dir_w and self.env.is_collision(point_l)) or
+            (dir_n and self.env.is_collision(point_u)) or
+            (dir_s and self.env.is_collision(point_d)),
+
+            # face direction
+            dir_e,
+            dir_w,
+            dir_n,
+            dir_s,
+
+            # food location
+            self.env.food.x > head.x,  # food is eastbound
+            self.env.food.x < head.x,  # food is westbound
+            self.env.food.y < head.y,  # food is northbound
+            self.env.food.y > head.y   # food is southbound
+        ]
+        return np.array(state, dtype=int)
 
     # get action using epsilon-greedy method to be taken from current
     # state
@@ -104,116 +120,78 @@ class Agent:
         # exploitation; get action from pred_model and take the biggest
         # q value (best action)
         else:
-            state = np.array(state)
             # reshape state array to feed into NN
             state = state.reshape(1, self.state_size)
             return np.argmax(self.model.pred_model.predict(state))
 
     # step function takes in action, moves agent to next state and returns
     # [next_state, reward, done]
-    def play_step(self, P1, action):
+    def play_step(self, action):
         done = False
-
-        P1.update()
+        self.frame_iteration += 1
+        # Collect the user input
         for event in pygame.event.get():
-            if event.type == QUIT:
+            if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                quit()
 
-        # inject actions into game
-        if action < 3:
-            P1.short_jump()
-        elif action < 6:
-            P1.long_jump()
+        # move/change head (x, y)
+        x = self.head.x
+        y = self.head.y
+        if action == self.actions.index('EAST'):
+            x += Game.BLOCK_SIZE
+        elif action == self.actions.index('WEST'):
+            x -= Game.BLOCK_SIZE
+        elif action == self.actions.index('NORTH'):
+            y -= Game.BLOCK_SIZE
+        elif action == self.actions.index('SOUTH'):
+            y += Game.BLOCK_SIZE
 
-        # end of episode here
-        if P1.rect.top > Game.HEIGHT:
+        self.direction = action
+        # update head (x, y)
+        self.head = Game.Point(x, y)
+        self.snake.insert(0, self.head)
+
+        # Check if game Over or exceeded set max iteration
+        if self.env.is_collision():
             done = True
+            self.score += self.game_over_reward
+        elif self.frame_iteration > self.max_iteration:
+            print('frame iteration exceeded !')
+            done = True
+            self.frame_iteration = 0
 
-        # exit this if done is True
-        if done is not True:
-            # scroll screen up if player goes above set height
-            if P1.rect.top <= Game.HEIGHT / 3:
-                # move player with velocity
-                P1.pos.y += abs(P1.vel.y)
-                # move platforms and coins as well with velocity
-                for plat in Game.platforms:
-                    plat.rect.y += abs(P1.vel.y)
-                    if plat.rect.top >= Game.HEIGHT:
-                        plat.kill()
+        if not done:
+            # Place new Food or just move
+            if self.head == self.env.food:
+                self.score += self.food_reward
+                self.env.place_food()
+            else:
+                self.snake.pop()
 
-                for coin in Game.coins:
-                    coin.rect.y += abs(P1.vel.y)
-                    if coin.rect.top >= Game.HEIGHT:
-                        coin.kill()
-
-            Game.plat_gen()
-            Game.displaysurface.blit(Game.background, (0, 0))
-
-            f = pygame.font.SysFont("Verdana", 20)
-            g = f.render(str(P1.score), True, (123, 255, 0))
-            Game.displaysurface.blit(g, (Game.WIDTH / 2, 10))
-
-            for entity in Game.all_sprites:
-                Game.displaysurface.blit(entity.surf, entity.rect)
-                # inject left/right actions
-                entity.move(P1, action)
-
-            for coin in Game.coins:
-                Game.displaysurface.blit(coin.image, coin.rect)
-                coin.update(P1)
-
-            # get cumulative reward from game
-            reward = P1.score
-
-        else:
-            # set negative reward if done is true [game over]
-            reward = P1.score + self.game_over_reward
-
-        # observed state after executing the action
-        # NOTE: even if done is set, we still get next_state which would
-        # be the same as the last obtained state
-        next_state = self.get_state(P1)
-        # debug info
+        # Update UI and clock
+        self.env.update_ui(self.score)
+        # get next state
+        next_state = self.get_state()
         show_state(next_state)
-        # update display
+        # update screen with debug info
         pygame.display.update()
-        FramePerSec.tick(Game.FPS)
-        return next_state, reward, done
+        FramePerSec.tick(Game.SPEED)
 
-# utils
-# flatten list
-def flatten(lis):
-    for item in lis:
-        if isinstance(item, Iterable) and not isinstance(item, str):
-            for x in flatten(item):
-                yield x
-        else:
-            yield item
+        # Return game Over and Display Score
+        return next_state, self.score, done
 
 # display state
 def show_state(state):
     # display state vector
     debugfont = pygame.font.SysFont("Verdana", 14)
-    # player pos
-    player_pos = [state[0], state[1]]
-    player_attr_tuple = [state[0], state[1], state[12]]
-    debugsurface = debugfont.render(str(player_attr_tuple), True, (0, 0, 0))
-    Game.displaysurface.blit(debugsurface, player_pos)
+    h = 0
+    for i in range(len(state)):
+        debugsurface = debugfont.render(str(state[i]), True, Game.RED)
+        Game.displaysurface.blit(debugsurface, (10, 30 + h))
+        h += 20
 
-    # nearest platforms - below - near | above - near, middle, far
-    for i in range(2, 9, 2):
-        if i == 2:
-            # color for platform below
-            cl = (255, 0, 0)
-        else:
-            # color for platforms above
-            cl = (0, 0, 255)
-        debugsurface = debugfont.render(str([state[i], state[i+1]]), True, cl)
-        Game.displaysurface.blit(debugsurface, (state[i], state[i+1]))
-        # draw connecting lines
-        pygame.draw.line(Game.displaysurface, cl, player_pos, (state[i], state[i+1]))
+def safe_close():
+    pygame.quit()
+    sys.exit()
 
-    # nearest coin platform
-    debugsurface = debugfont.render(str([state[10], state[11]]), True, (0, 255, 0))
-    Game.displaysurface.blit(debugsurface, (state[10], state[11]))

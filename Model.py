@@ -12,7 +12,7 @@ from collections import deque
 
 class DQNModel:
     def __init__(self):
-        self.learning_rate = 0.005
+        self.learning_rate = 0.0005
         # loss function, that is used to estimate the loss of the model
         # so that the weights can be updated to reduce the loss on the
         # next evaluation
@@ -38,10 +38,10 @@ class DQNModel:
         # update target model after this many epochs
         self.target_model_update_step = 1000
         # get state size and action size from agent
-        self.state_size = 13
-        self.action_size = 9
+        self.state_size = 11
+        self.action_size = 4
         # discount factor for future rewards
-        self.gamma = 0.2
+        self.gamma = 0.7
         # prediction and target model
         self.pred_model = self.create_model()
         self.target_model = self.create_model()
@@ -50,8 +50,7 @@ class DQNModel:
     def create_model(self):
         model = Sequential()
         # define model layers
-        model.add(Dense(16, activation='relu', input_shape=(self.state_size,)))
-        model.add(Dense(32, activation='relu'))
+        model.add(Dense(256, activation='relu', input_shape=(self.state_size,)))
         model.add(Dense(self.action_size, activation='linear'))
         # Compile defines the loss function, the optimizer and the metrics.
         # It has nothing to do with the weights, and you can compile a model
@@ -67,7 +66,7 @@ class DQNModel:
         # The output shape of each layer.
         # The number of parameters (weights) in each layer.
         # The total number of parameters (weights) in the model.
-        # model.summary()
+        model.summary()
         return model
 
     # after some time interval update the target model to be same

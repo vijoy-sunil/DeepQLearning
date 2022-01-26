@@ -1,22 +1,23 @@
 **States**
-1. agent position [X, Y]
-2. platform position [X, Y]\
-(*nearest below, nearest top, middle top, farthest top*)
-3. nearest coin platform [X, Y]
-4. agent [Y] velocity
+1. next block [right] danger
+2. next block [left]  danger 
+3. next block [fwd]   danger 
+4. face direction [east]
+5. face direction [west]
+6. face direction [north]
+7. face direction [south]
+8. food location [east]
+9. food location [west]
+10. food location [north] 
+11. food location [south]
 
 **Actions**
-1. sh jump + none
-2. sh jump + left
-3. sh jump + right
-4. ln jump + none
-5. ln jump + left
-6. ln jump + right
-7. left
-8. right
-9. none
+1. move east
+2. move west
+3. move north
+4. move south
 
 **Reference**\
-(1) Pygame used in this project [link](https://coderslegacy.com/python/pygame-platformer-game-development/)
+(1) Pygame used in this project [link](https://github.com/vedantgoswami/SnakeGameAI)
 
 (2) Reinforcement Learning Explained Visually (Part 5): Deep Q Networks, step-by-step [link](https://towardsdatascience.com/reinforcement-learning-explained-visually-part-5-deep-q-networks-step-by-step-5a5317197f4b)
