@@ -51,11 +51,11 @@ class Agent:
 
     # init agent
     def init_agent(self):
-        self.direction = self.actions.index('EAST')
+        # random heading
+        self.direction = random.randrange(0, self.action_size)
         self.head = Game.Point(Game.WIDTH / 2, Game.HEIGHT / 2)
-        self.snake = [self.head,
-                      Game.Point(self.head.x - Game.BLOCK_SIZE, self.head.y),
-                      Game.Point(self.head.x - (2 * Game.BLOCK_SIZE), self.head.y)]
+        # start snake with single cell
+        self.snake = [self.head]
         self.score = 0
 
     # reset
