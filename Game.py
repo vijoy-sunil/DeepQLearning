@@ -14,6 +14,7 @@ SPEED = 2
 # Colors
 WHITE = (255, 255, 255)
 RED = (200, 0, 0)
+YELLOW = (255, 255, 0)
 BLUE1 = (0, 0, 255)
 BLUE2 = (0, 100, 255)
 BLACK = (0, 0, 0)
@@ -48,11 +49,17 @@ class Environment:
 
     def update_ui(self, score):
         displaysurface.fill(BLACK)
+        # different color for the fead
+        head = self.snake[0]
         for pt in self.snake:
             pygame.draw.rect(displaysurface, BLUE1,
                              pygame.Rect(pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
-            pygame.draw.rect(displaysurface, BLUE2,
-                             pygame.Rect(pt.x + 4, pt.y + 4, 12, 12))
+            if pt == head:
+                pygame.draw.rect(displaysurface, YELLOW,
+                                 pygame.Rect(pt.x + 4, pt.y + 4, 12, 12))
+            else:
+                pygame.draw.rect(displaysurface, BLUE2,
+                                 pygame.Rect(pt.x + 4, pt.y + 4, 12, 12))
 
         pygame.draw.rect(displaysurface, RED,
                          pygame.Rect(self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))
