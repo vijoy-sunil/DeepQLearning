@@ -69,9 +69,9 @@ class Agent:
         # if no platforms above
         if len(pl_above) == 0:
             pl_above = [[Game.WIDTH/2, 0]]
-        # if no platforms below
+        # if no platforms below, give it an out-of-bounds value
         if len(pl_below) == 0:
-            pl_below = [[Game.WIDTH/2, Game.HEIGHT]]
+            pl_below = [[Game.WIDTH/2, Game.HEIGHT + 1000]]
 
         # pick and choose what features/observations to use
         nearest_below = pl_below[0]
