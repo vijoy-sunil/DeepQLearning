@@ -30,7 +30,7 @@ class DQNModel:
         self.replay_memory = deque(maxlen=self.replay_memory_size)
         # The batch size is a number of samples processed before the model is
         # updated
-        self.batch_size = 32
+        self.batch_size = 1000
         # file name and path to save model. Model weights are saved to HDF5
         # format. This is a grid format that is ideal for storing multidime-
         # -nsional arrays of numbers.
