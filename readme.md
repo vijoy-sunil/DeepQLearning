@@ -2,8 +2,8 @@
 1. agent position [X, Y]
 2. platform position [X, Y]\
 (*nearest below, nearest top, middle top, farthest top*)
-3. nearest coin platform [X, Y]\
-(*state vector contains 6 coordinates*)
+3. nearest coin platform [X, Y]
+4. agent [Y] velocity
 
 **Actions**
 1. sh jump + none
