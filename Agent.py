@@ -160,12 +160,13 @@ class Agent:
 
         # Check if game over or exceeded set max iteration
         if self.env.is_collision():
+            self.frame_iteration = 0
             done = True
             self.score += self.game_over_reward
 
         elif self.frame_iteration > self.max_iteration:
-            self.frame_iteration = 0
             print('frame iteration exceeded !')
+            self.frame_iteration = 0
             done = True
             self.score += self.game_over_reward
 
