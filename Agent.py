@@ -55,7 +55,7 @@ class Agent:
             if p_y < P1.pos[1]:
                 pl_above.append(p_entity.rect.center)
             # save platforms below the player
-            elif P1.pos[1] < p_y < Game.HEIGHT:
+            elif p_y > P1.pos[1]:
                 pl_below.append(p_entity.rect.center)
             # save platforms with coin; above player
             if p_y < P1.pos[1] and p_entity.isCoin:

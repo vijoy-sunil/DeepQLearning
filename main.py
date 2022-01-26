@@ -8,13 +8,15 @@ def train():
     # used to compute time to train
     t1_start = process_time()
     # parameters
-    episodes = 5
+    episodes = 50
     # id for this training; used in plot figure
     t_id = 0
     # keep track of number of iterations to trigger target model update
     iteration = 0
-    # save rewards per episode to plot
+    # save rewards per episode, moving avg to plot
     score = []
+    moving_avg = []
+
     agent = Agent.Agent()
     for e in range(0, episodes):
         # clear saved vars before next episode
@@ -57,22 +59,26 @@ def train():
         # reset game
         Game.reset_game()
         print('episode', e, 'complete, epochs', epoch, 'reward', reward)
-        # save reward to plot
+        # save reward, moving avg to plot
         score.append(reward)
+        moving_avg.append(sum(score)/len(score))
 
     # compute time to train
     t1_stop = process_time()
     print('training complete, elapsed time', t1_stop - t1_start, 'secs')
     # plot episode vs reward
-    plot_result(score, t_id)
+    plot_result(score, moving_avg, t_id)
     # save model
     agent.model.save_model_weights(t_id)
     # close game
     Game.safe_close()
 
-def plot_result(score, t_id):
+def plot_result(score, moving_avg, t_id):
     n = len(score)
-    plt.plot(score, color='r')
+    plt.plot(score, color='g')
+    # moving average
+    plt.plot(moving_avg, color='r')
+
     plt.xticks(np.arange(0, n, n-1))
     plt.xlabel('episodes')
     plt.ylabel('reward')
