@@ -10,6 +10,7 @@
 9. food location [west]
 10. food location [north] 
 11. food location [south]
+12. distance to food
 
 **Actions**
 1. move east
