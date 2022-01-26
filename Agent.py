@@ -65,12 +65,12 @@ class Agent:
         pl_below.sort(key=sort_rule)
         pl_coin.sort(key=sort_rule)
 
-        # if no platforms above set to (0, 0)
+        # if no platforms above
         if len(pl_above) == 0:
-            pl_above = [[0, 0]]
-        # if no platforms below set to (width, height)
+            pl_above = [[Game.WIDTH/2, 0]]
+        # if no platforms below
         if len(pl_below) == 0:
-            pl_below = [[Game.WIDTH, Game.HEIGHT]]
+            pl_below = [[Game.WIDTH/2, Game.HEIGHT]]
 
         # pick and choose what features/observations to use
         nearest_below = pl_below[0]
