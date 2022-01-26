@@ -14,6 +14,7 @@ SPEED = 12
 # Colors
 WHITE = (255, 255, 255)
 RED = (200, 0, 0)
+GREEN = (0, 255, 0)
 YELLOW = (255, 255, 0)
 BLUE1 = (0, 0, 255)
 BLUE2 = (0, 100, 255)
@@ -21,7 +22,6 @@ BLACK = (0, 0, 0)
 
 displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Snake DQN')
-font = pygame.font.SysFont('Verdana', 25)
 Point = namedtuple('Point', 'x , y')
 
 class Environment:
@@ -63,8 +63,9 @@ class Environment:
 
         pygame.draw.rect(displaysurface, RED,
                          pygame.Rect(self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))
-        text = font.render("Score: " + str(score), True, WHITE)
-        displaysurface.blit(text, [0, 0])
+        font = pygame.font.SysFont('Verdana', 25)
+        text = font.render(str(score), True, GREEN)
+        displaysurface.blit(text, [WIDTH/2, 10])
 
     def is_collision(self, pt=None):
         if pt is None:

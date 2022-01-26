@@ -187,11 +187,15 @@ class Agent:
 # display state
 def show_state(state):
     # display state vector
-    debugfont = pygame.font.SysFont("Verdana", 14)
+    debugfont = pygame.font.SysFont("Verdana", 15)
+
+    state_text = ["[R DNG] ", "[L DNG] ", "[F DNG] ",
+                  "[E DIR] ", "[W DIR] ", "[N DIR] ", "[S DIR] ",
+                  "[E FUD] ", "[W FUD] ", "[N FUD] ", "[S FUD] "]
     h = 0
     for i in range(len(state)):
-        debugsurface = debugfont.render(str(state[i]), True, Game.RED)
-        Game.displaysurface.blit(debugsurface, (10, 30 + h))
+        debugsurface = debugfont.render(state_text[i] + str(state[i]), True, Game.RED)
+        Game.displaysurface.blit(debugsurface, (10, 10 + h))
         h += 20
 
 def safe_close():
