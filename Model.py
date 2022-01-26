@@ -11,7 +11,7 @@ from keras.layers import Dense
 from collections import deque
 
 class DQNModel:
-    def __init__(self):
+    def __init__(self, state_space, action_space):
         self.learning_rate = 0.0005
         # loss function, that is used to estimate the loss of the model
         # so that the weights can be updated to reduce the loss on the
@@ -38,8 +38,8 @@ class DQNModel:
         # update target model after this many epochs
         self.target_model_update_step = 100
         # get state size and action size from agent
-        self.state_size = 12
-        self.action_size = 4
+        self.state_size = state_space
+        self.action_size = action_space
         # discount factor for future rewards
         self.gamma = 0.7
         # prediction and target model

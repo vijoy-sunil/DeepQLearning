@@ -4,7 +4,6 @@ import random
 import numpy as np
 import Model
 import sys
-import math
 
 FramePerSec = pygame.time.Clock()
 
@@ -30,9 +29,8 @@ class Agent:
         #   food location [east],
         #   food location [west],
         #   food location [north],
-        #   food location [south],
-        #   distance to food ]
-        self.state_size = 12
+        #   food location [south] ]
+        self.state_size = 11
         # [east,       0
         #  west,       1
         #  north,      2
@@ -43,7 +41,7 @@ class Agent:
         self.frame_iteration = 0
         self.max_iteration = 500
         # deep network
-        self.model = Model.DQNModel()
+        self.model = Model.DQNModel(self.state_size, self.action_size)
 
         # init agent, then environment
         self.init_agent()
@@ -79,8 +77,6 @@ class Agent:
         dir_n = self.direction == self.actions.index('NORTH')
         dir_s = self.direction == self.actions.index('SOUTH')
 
-        # metric
-        distance_to_food = math.dist(head, self.env.food)
         # construct state vector
         state = [
             # next block [right]  danger
@@ -111,9 +107,7 @@ class Agent:
             self.env.food.x > head.x,  # food is eastbound
             self.env.food.x < head.x,  # food is westbound
             self.env.food.y < head.y,  # food is northbound
-            self.env.food.y > head.y,  # food is southbound
-
-            distance_to_food            # distance to food
+            self.env.food.y > head.y   # food is southbound
         ]
         return np.array(state, dtype=int)
 

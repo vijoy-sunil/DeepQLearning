@@ -4,9 +4,9 @@ import Agent
 
 def train():
     # parameters
-    episodes = 1000
+    episodes = 100
     # id for this training; used in plot figure
-    t_id = 0
+    t_id = 1
     # keep track of number of iterations to trigger target model update
     iteration = 0
     # save rewards per episode, moving avg to plot
