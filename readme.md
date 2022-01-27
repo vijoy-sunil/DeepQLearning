@@ -12,10 +12,9 @@
 11. food location [south]
 
 **Actions**
-1. move east
-2. move west
-3. move north
-4. move south
+1. move right
+2. move left
+3. move forward
 
 **Reference**
 1. Reference project [link](https://github.com/vedantgoswami/SnakeGameAI)

@@ -31,12 +31,14 @@ class Agent:
         #   food location [north],
         #   food location [south] ]
         self.state_size = 11
-        # [east,       0
-        #  west,       1
-        #  north,      2
-        #  south]      3
-        self.actions = ['EAST', 'WEST', 'NORTH', 'SOUTH']
+        # [right,   0
+        #  left,    1
+        #  fwd,     2
+        self.actions = ['RIGHT', 'LEFT', 'FWD']
         self.action_size = len(self.actions)
+        # compass
+        self.compass = ['EAST', 'WEST', 'NORTH', 'SOUTH']
+        self.compass_size = len(self.compass)
         # exit condition for an episode other than dying
         self.frame_iteration = 0
         self.max_iteration = 500
@@ -50,20 +52,20 @@ class Agent:
     # init agent
     def init_agent(self):
         # random heading
-        self.direction = random.randrange(0, self.action_size)
+        self.direction = random.randrange(0, self.compass_size)
         self.head = Game.Point(Game.WIDTH / 2, Game.HEIGHT / 2)
         # random positioning
         x1, y1 = 0, 0
-        if self.direction == self.actions.index('EAST'):
+        if self.direction == self.compass.index('EAST'):
             x1 = self.head.x - Game.BLOCK_SIZE
             y1 = self.head.y
-        elif self.direction == self.actions.index('WEST'):
+        elif self.direction == self.compass.index('WEST'):
             x1 = self.head.x + Game.BLOCK_SIZE
             y1 = self.head.y
-        elif self.direction == self.actions.index('NORTH'):
+        elif self.direction == self.compass.index('NORTH'):
             x1 = self.head.x
             y1 = self.head.y + Game.BLOCK_SIZE
-        elif self.direction == self.actions.index('SOUTH'):
+        elif self.direction == self.compass.index('SOUTH'):
             x1 = self.head.x
             y1 = self.head.y - Game.BLOCK_SIZE
 
@@ -86,10 +88,10 @@ class Agent:
         point_u = Game.Point(head.x, head.y - Game.BLOCK_SIZE)
         point_d = Game.Point(head.x, head.y + Game.BLOCK_SIZE)
 
-        dir_e = self.direction == self.actions.index('EAST')
-        dir_w = self.direction == self.actions.index('WEST')
-        dir_n = self.direction == self.actions.index('NORTH')
-        dir_s = self.direction == self.actions.index('SOUTH')
+        dir_e = self.direction == self.compass.index('EAST')
+        dir_w = self.direction == self.compass.index('WEST')
+        dir_n = self.direction == self.compass.index('NORTH')
+        dir_s = self.direction == self.compass.index('SOUTH')
 
         # construct state vector
         state = [
@@ -149,19 +151,19 @@ class Agent:
                 pygame.quit()
                 quit()
 
+        self.direction = self.get_new_direction(action)
         # move/change head (x, y)
         x = self.head.x
         y = self.head.y
-        if action == self.actions.index('EAST'):
+        if self.direction == self.compass.index('EAST'):
             x += Game.BLOCK_SIZE
-        elif action == self.actions.index('WEST'):
+        elif self.direction == self.compass.index('WEST'):
             x -= Game.BLOCK_SIZE
-        elif action == self.actions.index('NORTH'):
+        elif self.direction == self.compass.index('NORTH'):
             y -= Game.BLOCK_SIZE
-        elif action == self.actions.index('SOUTH'):
+        elif self.direction == self.compass.index('SOUTH'):
             y += Game.BLOCK_SIZE
 
-        self.direction = action
         # update head (x, y)
         self.head = Game.Point(x, y)
         self.snake.insert(0, self.head)
@@ -197,6 +199,34 @@ class Agent:
 
         # Return game Over and Display Score
         return next_state, self.score, done
+
+    def get_new_direction(self, action):
+        new_direction = self.direction
+        if self.direction == self.compass.index('EAST'):
+            if action == self.actions.index('RIGHT'):
+                new_direction = self.compass.index('SOUTH')
+            elif action == self.actions.index('LEFT'):
+                new_direction = self.compass.index('NORTH')
+
+        elif self.direction == self.compass.index('WEST'):
+            if action == self.actions.index('RIGHT'):
+                new_direction = self.compass.index('NORTH')
+            elif action == self.actions.index('LEFT'):
+                new_direction = self.compass.index('SOUTH')
+
+        elif self.direction == self.compass.index('NORTH'):
+            if action == self.actions.index('RIGHT'):
+                new_direction = self.compass.index('EAST')
+            elif action == self.actions.index('LEFT'):
+                new_direction = self.compass.index('WEST')
+
+        elif self.direction == self.compass.index('SOUTH'):
+            if action == self.actions.index('RIGHT'):
+                new_direction = self.compass.index('WEST')
+            elif action == self.actions.index('LEFT'):
+                new_direction = self.compass.index('EAST')
+
+        return new_direction
 
 # display state
 def show_state(state):
