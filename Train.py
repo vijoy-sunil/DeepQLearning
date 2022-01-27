@@ -77,4 +77,4 @@ def plot_result(score, moving_avg, t_id):
 
 if __name__ == '__main__':
     # t_id - training id; used in figures, weights saved
-    train(1)
+    train(2)

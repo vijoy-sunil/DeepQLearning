@@ -40,7 +40,7 @@ def test(t_id):
     print('testing complete, max reward', max(score), 'min reward', min(score))
     # plot episode vs reward
     # append t_id to mark this as a test run
-    t_id = t_id + 0.2
+    t_id = t_id + 0.1
     Train.plot_result(score, moving_avg, t_id)
     # close game
     Agent.safe_close()
@@ -48,4 +48,4 @@ def test(t_id):
 
 if __name__ == '__main__':
     # t_id - testing id; used in figures, loading weights
-    test(1)
+    test(2)
