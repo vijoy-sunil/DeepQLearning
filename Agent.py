@@ -52,8 +52,22 @@ class Agent:
         # random heading
         self.direction = random.randrange(0, self.action_size)
         self.head = Game.Point(Game.WIDTH / 2, Game.HEIGHT / 2)
-        # start snake with single cell
-        self.snake = [self.head]
+        # random positioning
+        x1, y1 = 0, 0
+        if self.direction == self.actions.index('EAST'):
+            x1 = self.head.x - Game.BLOCK_SIZE
+            y1 = self.head.y
+        elif self.direction == self.actions.index('WEST'):
+            x1 = self.head.x + Game.BLOCK_SIZE
+            y1 = self.head.y
+        elif self.direction == self.actions.index('NORTH'):
+            x1 = self.head.x
+            y1 = self.head.y + Game.BLOCK_SIZE
+        elif self.direction == self.actions.index('SOUTH'):
+            x1 = self.head.x
+            y1 = self.head.y - Game.BLOCK_SIZE
+
+        self.snake = [self.head, Game.Point(x1, y1)]
         self.score = 0
 
     # reset

@@ -35,8 +35,9 @@ class DQNModel:
         # format. This is a grid format that is ideal for storing multidime-
         # -nsional arrays of numbers.
         self.weights_file_name = 'Weights/QNetwork_'
-        # update target model after this many epochs
-        self.target_model_update_step = 100
+        # update target model after this many epochs, NOTE: training starts
+        # only after replay memory size > batch size
+        self.target_model_update_step = 2 * self.batch_size
         # get state size and action size from agent
         self.state_size = state_space
         self.action_size = action_space
