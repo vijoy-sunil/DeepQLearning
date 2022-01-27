@@ -3,7 +3,7 @@ import numpy as np
 import Agent
 
 def train(t_id):
-    # parameters
+    # train episodes
     episodes = 1000
     # keep track of number of iterations to trigger target model update
     iteration = 0
@@ -74,10 +74,7 @@ def plot_result(score, moving_avg, t_id):
     plt.savefig(fig_path)
     plt.show()
 
-def test():
-    pass
-
 
 if __name__ == '__main__':
     # t_id - training id; used in figures, weights saved
-    train(0)
+    train(1)
