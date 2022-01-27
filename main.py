@@ -2,11 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import Agent
 
-def train():
+def train(t_id):
     # parameters
     episodes = 1000
-    # id for this training; used in plot figure
-    t_id = 1
     # keep track of number of iterations to trigger target model update
     iteration = 0
     # save rewards per episode, moving avg to plot
@@ -81,4 +79,5 @@ def test():
 
 
 if __name__ == '__main__':
-    train()
+    # t_id - training id; used in figures, weights saved
+    train(0)

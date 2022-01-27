@@ -18,6 +18,6 @@
 4. move south
 
 **Reference**\
-(1) Pygame used in this project [link](https://github.com/vedantgoswami/SnakeGameAI)
-
-(2) Reinforcement Learning Explained Visually (Part 5): Deep Q Networks, step-by-step [link](https://towardsdatascience.com/reinforcement-learning-explained-visually-part-5-deep-q-networks-step-by-step-5a5317197f4b)
+1. Reference project [link](https://github.com/vedantgoswami/SnakeGameAI)
+2. Pygame used in this project [link](https://github.com/vedantgoswami/SnakeGameAI/blob/main/snake_game.py)
+3. Reinforcement Learning Explained Visually (Part 5): Deep Q Networks, step-by-step [link](https://towardsdatascience.com/reinforcement-learning-explained-visually-part-5-deep-q-networks-step-by-step-5a5317197f4b)
