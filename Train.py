@@ -4,11 +4,11 @@ import Agent
 
 def train(t_id):
     # train episodes
-    episodes = 1000
+    episodes = 500
     # keep track of number of iterations to trigger target model update
     iteration = 0
     # save rewards per episode, moving avg to plot
-    score = []
+    all_rewards = []
     moving_avg = []
 
     agent = Agent.Agent()
@@ -22,13 +22,15 @@ def train(t_id):
             iteration += 1
             # get actions to execute at current state
             action = agent.get_action(state)
-            # execute action, accumulate reward
-            next_state, reward, done = agent.play_step(action)
+            # execute action, get reward for executing action
+            next_state, score, done = agent.play_step(action)
             # store in experience replay memory
-            experience = state, action, reward, next_state, done
+            experience = state, action, score, next_state, done
             agent.model.save_replay_memory(experience)
             # update state to next_state
             state = next_state
+            # cumulative reward
+            reward += score
 
             # update target model
             # NOTE: from iteration 1 to batch_size, the prediction model
@@ -47,13 +49,13 @@ def train(t_id):
         agent.safe_reset()
         print('episode', e, 'complete, epochs', epoch, 'reward', reward)
         # save reward, moving avg to plot
-        score.append(reward)
-        moving_avg.append(sum(score)/len(score))
+        all_rewards.append(reward)
+        moving_avg.append(sum(all_rewards)/len(all_rewards))
 
     # end of training
     print('training complete')
     # plot episode vs reward
-    plot_result(score, moving_avg, t_id)
+    plot_result(all_rewards, moving_avg, t_id)
     # save model
     agent.model.save_model_weights(t_id)
     # close game
