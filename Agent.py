@@ -144,6 +144,7 @@ class Agent:
     # [next_state, reward, done]
     def play_step(self, action):
         done = False
+        self.score = 0
         self.frame_iteration += 1
         # Collect the user input
         for event in pygame.event.get():
@@ -172,20 +173,21 @@ class Agent:
         if self.env.is_collision():
             self.frame_iteration = 0
             done = True
-            self.score += self.game_over_reward
+            self.score = self.game_over_reward
 
         elif self.frame_iteration > self.max_iteration:
             print('frame iteration exceeded !')
             self.frame_iteration = 0
             done = True
-            self.score += self.game_over_reward
+            self.score = self.game_over_reward
 
         if not done:
             # Place new Food or just move
             if self.head == self.env.food:
                 self.frame_iteration = 0
-                self.score += self.food_reward
+                self.score = self.food_reward
                 self.env.place_food()
+            # idle state
             else:
                 self.snake.pop()
 
