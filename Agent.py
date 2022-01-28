@@ -132,13 +132,13 @@ class Agent:
     def get_action(self, state):
         # exploration
         if random.uniform(0, 1) < self.epsilon:
-            return random.randrange(0, self.action_size)
+            return 0, random.randrange(0, self.action_size)
         # exploitation; get action from pred_model and take the biggest
         # q value (best action)
         else:
             # reshape state array to feed into NN
             state = state.reshape(1, self.state_size)
-            return np.argmax(self.model.pred_model.predict(state))
+            return 1, np.argmax(self.model.pred_model.predict(state))
 
     # step function takes in action, moves agent to next state and returns
     # [next_state, reward, done]

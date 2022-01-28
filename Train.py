@@ -15,13 +15,20 @@ def train(t_id):
     for e in range(0, episodes):
         # clear saved vars before next episode
         epoch, done, reward = 0, False, 0
+        exploration, exploitation = 0, 0
         # get current state
         state = agent.get_state()
         # begin an episode
         while not done:
             iteration += 1
             # get actions to execute at current state
-            action = agent.get_action(state)
+            egr, action = agent.get_action(state)
+            # debug purposes, see how many of the actions in this
+            # episode are exploration vs exploitation
+            if egr == 0:
+                exploration += 1
+            else:
+                exploitation += 1
             # execute action, get reward for executing action
             next_state, score, done = agent.play_step(action)
             # store in experience replay memory
@@ -47,7 +54,8 @@ def train(t_id):
 
         # reset game
         agent.safe_reset()
-        print('episode', e, 'complete, epochs', epoch, 'reward', reward)
+        print('episode', e, 'complete, epochs', epoch, 'reward', reward,
+              'exploration', exploration, 'exploitation', exploitation)
         # save reward, moving avg to plot
         all_rewards.append(reward)
         moving_avg.append(sum(all_rewards)/len(all_rewards))
