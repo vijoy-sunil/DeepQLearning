@@ -183,6 +183,7 @@ class Agent:
         if not done:
             # Place new Food or just move
             if self.head == self.env.food:
+                self.frame_iteration = 0
                 self.score += self.food_reward
                 self.env.place_food()
             else:
@@ -192,7 +193,7 @@ class Agent:
         self.env.update_ui(self.score)
         # get next state
         next_state = self.get_state()
-        show_state(next_state)
+        self.show_state(next_state)
         # update screen with debug info
         pygame.display.update()
         FramePerSec.tick(Game.SPEED)
@@ -228,19 +229,24 @@ class Agent:
 
         return new_direction
 
-# display state
-def show_state(state):
-    # display state vector
-    debugfont = pygame.font.SysFont("Verdana", 15)
+    # display state
+    def show_state(self, state):
+        # display state vector
+        debugfont = pygame.font.SysFont("Verdana", 15)
 
-    state_text = ["[R DNG] ", "[L DNG] ", "[F DNG] ",
-                  "[E DIR] ", "[W DIR] ", "[N DIR] ", "[S DIR] ",
-                  "[E FUD] ", "[W FUD] ", "[N FUD] ", "[S FUD] "]
-    h = 0
-    for i in range(len(state)):
-        debugsurface = debugfont.render(state_text[i] + str(state[i]), True, Game.RED)
+        state_text = ["[R DNG] ", "[L DNG] ", "[F DNG] ",
+                      "[E DIR] ", "[W DIR] ", "[N DIR] ", "[S DIR] ",
+                      "[E FUD] ", "[W FUD] ", "[N FUD] ", "[S FUD] "]
+        h = 0
+        for i in range(len(state)):
+            debugsurface = debugfont.render(state_text[i] + str(state[i]), True, Game.RED)
+            Game.displaysurface.blit(debugsurface, (10, 10 + h))
+            h += 20
+        # debug info
+        debugsurface = debugfont.render(str(self.frame_iteration), True, Game.YELLOW)
         Game.displaysurface.blit(debugsurface, (10, 10 + h))
         h += 20
+
 
 def safe_close():
     pygame.quit()
