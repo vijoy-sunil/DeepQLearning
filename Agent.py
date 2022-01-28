@@ -18,7 +18,7 @@ class Agent:
         self.game_over_reward = -5
         self.food_reward = 10
         # constants
-        self.epsilon = 0.8
+        self.epsilon = 0.2
         # [ next block [right] danger,
         #   next block [left]  danger,
         #   next block [fwd]   danger,
@@ -131,7 +131,7 @@ class Agent:
     # state
     def get_action(self, state):
         # exploration
-        if random.uniform(0, 1) > self.epsilon:
+        if random.uniform(0, 1) < self.epsilon:
             return random.randrange(0, self.action_size)
         # exploitation; get action from pred_model and take the biggest
         # q value (best action)
