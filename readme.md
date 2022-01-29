@@ -1,5 +1,5 @@
 **Output**\
-Test output after 2500 episodes of training\
+Test run after 2500 episodes of training\
 Max reward: 305\
 <img src="./Log/0.1.png" alt="drawing" width="600"/>
 
