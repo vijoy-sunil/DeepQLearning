@@ -4,9 +4,11 @@ import Agent
 
 def train(t_id):
     # train episodes
-    episodes = 500
-    # keep track of number of iterations to trigger target model update
-    iteration = 0
+    episodes = 2500
+    # keep track of number of episodes to trigger target model update
+    ep_iteration = 0
+    # save weights after checkpoint
+    ep_checkpoint = 100
     # save rewards per episode, moving avg to plot
     all_rewards = []
     moving_avg = []
@@ -19,8 +21,8 @@ def train(t_id):
         # get current state
         state = agent.get_state()
         # begin an episode
+        ep_iteration += 1
         while not done:
-            iteration += 1
             # get actions to execute at current state
             egr, action = agent.get_action(state)
             # debug purposes, see how many of the actions in this
@@ -40,11 +42,9 @@ def train(t_id):
             reward += score
 
             # update target model
-            # NOTE: from iteration 1 to batch_size, the prediction model
-            # is not getting trained as we are collecting experience
-            if iteration == agent.model.target_model_update_step:
+            if ep_iteration == agent.model.target_model_update_episode:
                 print('updating target model weights . . .')
-                iteration = 0
+                ep_iteration = 0
                 agent.model.update_target_model()
                 print('done')
             # train prediction model, NOTE: training starts only after
@@ -56,6 +56,10 @@ def train(t_id):
         agent.safe_reset()
         print('episode', e, 'complete, epochs', epoch, 'reward', reward,
               'exploration', exploration, 'exploitation', exploitation)
+        # save weights as checkpoint
+        if e % ep_checkpoint == 0:
+            checkpoint_id = '_' + str(e)
+            agent.model.save_model_weights(t_id, checkpoint_id)
         # save reward, moving avg to plot
         all_rewards.append(reward)
         moving_avg.append(sum(all_rewards)/len(all_rewards))
@@ -64,8 +68,9 @@ def train(t_id):
     print('training complete')
     # plot episode vs reward
     plot_result(all_rewards, moving_avg, t_id)
-    # save model
-    agent.model.save_model_weights(t_id)
+    # save final model
+    checkpoint_id = '_' + str(episodes - 1)
+    agent.model.save_model_weights(t_id, checkpoint_id)
     # close game
     Agent.safe_close()
 
@@ -87,4 +92,4 @@ def plot_result(score, moving_avg, t_id):
 
 if __name__ == '__main__':
     # t_id - training id; used in figures, weights saved
-    train(2)
+    train(0)

@@ -49,4 +49,4 @@ def test(t_id):
 
 if __name__ == '__main__':
     # t_id - testing id; used in figures, loading weights
-    test(2)
+    test(0)

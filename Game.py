@@ -8,7 +8,8 @@ pygame.init()
 # Game params
 WIDTH = 640
 HEIGHT = 480
-BLOCK_SIZE = 20
+# powers of 20
+BLOCK_SIZE = 40
 SPEED = 16
 
 # Colors
@@ -56,10 +57,12 @@ class Environment:
                              pygame.Rect(pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
             if pt == head:
                 pygame.draw.rect(displaysurface, YELLOW,
-                                 pygame.Rect(pt.x + 4, pt.y + 4, 12, 12))
+                                 pygame.Rect(pt.x + 0.2 * BLOCK_SIZE, pt.y + 0.2 * BLOCK_SIZE,
+                                             0.6 * BLOCK_SIZE, 0.6 * BLOCK_SIZE))
             else:
                 pygame.draw.rect(displaysurface, BLUE2,
-                                 pygame.Rect(pt.x + 4, pt.y + 4, 12, 12))
+                                 pygame.Rect(pt.x + 0.2 * BLOCK_SIZE, pt.y + 0.2 * BLOCK_SIZE,
+                                             0.6 * BLOCK_SIZE, 0.6 * BLOCK_SIZE))
 
         pygame.draw.rect(displaysurface, RED,
                          pygame.Rect(self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))

@@ -30,19 +30,18 @@ class DQNModel:
         self.replay_memory = deque(maxlen=self.replay_memory_size)
         # The batch size is a number of samples processed before the model is
         # updated
-        self.batch_size = 1000
+        self.batch_size = 500
         # file name and path to save model. Model weights are saved to HDF5
         # format. This is a grid format that is ideal for storing multidime-
         # -nsional arrays of numbers.
         self.weights_file_name = 'Weights/QNetwork_'
-        # update target model after this many epochs, NOTE: training starts
-        # only after replay memory size > batch size
-        self.target_model_update_step = 2 * self.batch_size
+        # update target model after this many episodes
+        self.target_model_update_episode = 20
         # get state size and action size from agent
         self.state_size = state_space
         self.action_size = action_space
         # discount factor for future rewards
-        self.gamma = 0.7
+        self.gamma = 0.9
         # prediction and target model
         self.pred_model = self.create_model()
         self.target_model = self.create_model()
@@ -51,8 +50,10 @@ class DQNModel:
     def create_model(self):
         model = Sequential()
         # define model layers
-        model.add(Dense(256, activation='relu', input_shape=(self.state_size,)))
-        model.add(Dense(self.action_size, activation='linear'))
+        model.add(Dense(121, activation='relu', input_shape=(self.state_size,)))
+        model.add(Dense(121, activation='relu'))
+        model.add(Dense(64, activation='relu'))
+        model.add(Dense(self.action_size, activation='relu'))
         # Compile defines the loss function, the optimizer and the metrics.
         # It has nothing to do with the weights, and you can compile a model
         # as many times as you want without causing any problem to pretrained
@@ -82,8 +83,8 @@ class DQNModel:
         weights = load_model(weights_file)
         return weights
 
-    def save_model_weights(self, t_id):
-        weights_file = self.weights_file_name + str(t_id) + '.h5'
+    def save_model_weights(self, t_id, checkpoint_id):
+        weights_file = self.weights_file_name + str(t_id) + checkpoint_id + '.h5'
         self.pred_model.save(weights_file)
 
     # save to experience replay memory

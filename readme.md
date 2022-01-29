@@ -20,10 +20,3 @@
 1. Reference project [link](https://github.com/vedantgoswami/SnakeGameAI)
 2. Pygame used in this project [link](https://github.com/vedantgoswami/SnakeGameAI/blob/main/snake_game.py)
 3. Reinforcement Learning Explained Visually (Part 5): Deep Q Networks, step-by-step [link](https://towardsdatascience.com/reinforcement-learning-explained-visually-part-5-deep-q-networks-step-by-step-5a5317197f4b)
-
-**Log figures**
-1. Fig 1 (1.png training, 1_1.png testing)\
-alpha = 0.0005,\
-batch size = 1000,\
-episodes = 1000,\
-target network weights updated every 2000 iterations
