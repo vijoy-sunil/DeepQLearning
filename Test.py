@@ -2,16 +2,16 @@ import Agent
 import numpy as np
 import Train
 
-def test(t_id):
+def test(t_id, checkpoint_id):
     # test episodes
-    episodes = 10
+    episodes = 25
     # save rewards per episode, moving avg to plot
     all_rewards = []
     moving_avg = []
 
     agent = Agent.Agent()
     # load model weights
-    agent.model.target_model = agent.model.load_model_weights(t_id)
+    agent.model.target_model = agent.model.load_model_weights(t_id, checkpoint_id)
 
     for e in range(0, episodes):
         # clear saved vars before next episode
@@ -49,4 +49,5 @@ def test(t_id):
 
 if __name__ == '__main__':
     # t_id - testing id; used in figures, loading weights
-    test(0)
+    # c_id - checkpoint id
+    test(0, '_2499')

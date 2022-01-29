@@ -78,8 +78,8 @@ class DQNModel:
 
     # load and save model weights, NOTE: we are not saving model
     # architecture here
-    def load_model_weights(self, t_id):
-        weights_file = self.weights_file_name + str(t_id) + '.h5'
+    def load_model_weights(self, t_id, checkpoint_id):
+        weights_file = self.weights_file_name + str(t_id) + checkpoint_id + '.h5'
         weights = load_model(weights_file)
         return weights
 
